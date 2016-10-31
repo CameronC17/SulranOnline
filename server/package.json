@@ -1,0 +1,25 @@
+{
+  "name": "sulranonline",
+  "version": "1.0.0",
+  "description": "An online 2D MMORPG",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/CameronC17/SulranOnline.git"
+  },
+  "keywords": [
+    "online",
+    "2d",
+    "mmorpg"
+  ],
+  "author": "Cameron Chalmers",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/CameronC17/SulranOnline/issues"
+  },
+  "homepage": "https://github.com/CameronC17/SulranOnline#readme"
+}
