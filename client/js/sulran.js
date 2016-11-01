@@ -1,9 +1,11 @@
+debug = true;
+
 class Sulran {
   constructor(canvas, connString) {
-    this.socket = new Connection(connString);
+    this.connection = new Connection(connString);
     this.graphics = new Draw(canvas);
 
-    this.userPosition = [15, 15];
+    this.userPosition = [0, 0];
 
     this.c = document.getElementById(canvas);
     this.ctx = this.c.getContext("2d");
@@ -14,6 +16,8 @@ class Sulran {
       "up": [-1, -1],
       "move": [-1, -1]
     }
+
+    this.Key = this.createKey();
   }
 
   mouseEvent(e, type) {
@@ -29,11 +33,52 @@ class Sulran {
     }
   }
 
+  createKey() {
+    var obj = this;
+    return {
+    	//http://www.cambiaresearch.com/articles/15/javascript-char-codes-key-codes
+      _pressed: {},
+      LEFT: 65,
+      UP: 87,
+      RIGHT: 68,
+      DOWN: 83,
+      isDown: function(keyCode) {
+        return this._pressed[keyCode];
+      },
+      onKeydown: function(event) {
+        switch (event.keyCode) {
+          case 65:
+            obj.userPosition[0]-=3;
+            break;
+          case 68:
+            obj.userPosition[0]+=3;
+            break;
+          case 87:
+            obj.userPosition[1]-=3;
+            break;
+          case 83:
+            obj.userPosition[1]+=3;
+            break;
+          default:
+            break;
+        }
+        this._pressed[event.keyCode] = true;
+      },
+      onKeyup: function(event) {
+        delete this._pressed[event.keyCode];
+      }
+    }
+  }
+
   buildMap() {
     var rtnMap = [];
-    for (var y = this.userPosition[1] - 10; y < this.userPosition[1] + 10; y++) {
+    var userPosOnGrid = {
+      "x": Math.floor(this.userPosition[0] / 40),
+      "y": Math.floor(this.userPosition[1] / 40)
+    }
+    for (var y = userPosOnGrid.y - 10; y < userPosOnGrid.y + 11; y++) {
       var row = [];
-      for (var x = this.userPosition[0] - 13; x < this.userPosition[0] + 13; x++) {
+      for (var x = userPosOnGrid.x - 13; x < userPosOnGrid.x + 13; x++) {
         if (y < 0 || x < 0) {
           row.push("b");
         } else if (y >= map.sulran.ground.length || x >= map.sulran.ground[0].length) {
@@ -44,7 +89,11 @@ class Sulran {
       }
       rtnMap.push(row);
     }
-    this.graphics.visibleMap = rtnMap;
+    this.graphics.visibleMap = {
+      "map": rtnMap,
+      "pModX": this.userPosition[0] % 40,
+      "pModY": this.userPosition[1] % 40
+    }
   }
 
   draw() {
@@ -67,11 +116,11 @@ class Draw {
     this.c = document.getElementById(canvas);
     this.ctx = this.c.getContext("2d");
 
-    this.visibleMap = [];
+    this.visibleMap = {};
   }
 
   clearScreen() {
-    this.ctx.fillStyle="#fff";
+    this.ctx.fillStyle="#f733e7";
     this.ctx.clearRect(0, 0, this.c.width, this.c.height);
   }
 
@@ -108,26 +157,30 @@ class Draw {
   }
 
   visibleLand() {
-    var xPos = 0,
-        yPos = 0;
-    for (var y = 0; y < this.visibleMap.length; y++) {
-      for (var x = 0; x < this.visibleMap[0].length; x++) {
-        var tile = this.visibleMap[y][x];
+    // first numbers to centre the character
+    var xPos = -40 - (this.visibleMap.pModX),
+        yPos = 25 - (this.visibleMap.pModY);
+    for (var y = 1; y < this.visibleMap.map.length; y++) {
+      for (var x = 0; x < this.visibleMap.map[0].length; x++) {
+        var tile = this.visibleMap.map[y][x];
         this.ctx.fillStyle = this.getTile(tile);
         this.ctx.fillRect(xPos, yPos, 40, 40);
         xPos += 40;
       }
-      xPos = 0;
+      xPos = -40 - (this.visibleMap.pModX);
       yPos += 40;
     }
+  }
 
-    //this.ctx.fillStyle="#00ff00";
-    //this.ctx.fillRect(300, 300, 300, 300)
+  player() {
+    this.ctx.fillStyle="#ffff66";
+    this.ctx.fillRect(480, 355, 40, 70);
   }
 
   draw() {
     this.clearScreen();
     this.visibleLand();
+    this.player();
     this.UI();
   }
 
