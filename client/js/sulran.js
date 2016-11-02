@@ -5,7 +5,7 @@ class Sulran {
     this.connection = new Connection(connString);
     this.graphics = new Draw(canvas);
 
-    this.userPosition = [0, 0];
+    this.userPosition = [40, 0];
 
     this.c = document.getElementById(canvas);
     this.ctx = this.c.getContext("2d");
@@ -76,9 +76,9 @@ class Sulran {
       "x": Math.floor(this.userPosition[0] / 40),
       "y": Math.floor(this.userPosition[1] / 40)
     }
-    for (var y = userPosOnGrid.y - 10; y < userPosOnGrid.y + 11; y++) {
+    for (var y = userPosOnGrid.y - 11; y < userPosOnGrid.y + 13; y++) {
       var row = [];
-      for (var x = userPosOnGrid.x - 13; x < userPosOnGrid.x + 13; x++) {
+      for (var x = userPosOnGrid.x - 13; x < userPosOnGrid.x + 14; x++) {
         if (y < 0 || x < 0) {
           row.push("b");
         } else if (y >= map.sulran.ground.length || x >= map.sulran.ground[0].length) {
@@ -121,7 +121,7 @@ class Draw {
 
   clearScreen() {
     this.ctx.fillStyle="#f733e7";
-    this.ctx.clearRect(0, 0, this.c.width, this.c.height);
+    this.ctx.fillRect(0, 0, this.c.width, this.c.height);
   }
 
   sidebar() {
@@ -159,7 +159,7 @@ class Draw {
   visibleLand() {
     // first numbers to centre the character
     var xPos = -40 - (this.visibleMap.pModX),
-        yPos = 25 - (this.visibleMap.pModY);
+        yPos = -15 - (this.visibleMap.pModY);
     for (var y = 1; y < this.visibleMap.map.length; y++) {
       for (var x = 0; x < this.visibleMap.map[0].length; x++) {
         var tile = this.visibleMap.map[y][x];
@@ -170,6 +170,8 @@ class Draw {
       xPos = -40 - (this.visibleMap.pModX);
       yPos += 40;
     }
+
+    console.log(this.visibleMap.pModX, this.visibleMap.pModY);
   }
 
   player() {
