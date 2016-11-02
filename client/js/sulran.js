@@ -4,8 +4,8 @@ class Sulran {
   constructor(canvas, connString) {
     this.connection = new Connection(connString);
     this.graphics = new Draw(canvas);
-
-    this.userPosition = [40, 0];
+    this.map = new Map();
+    this.player = new Player(this.map);
 
     this.c = document.getElementById(canvas);
     this.ctx = this.c.getContext("2d");
@@ -46,22 +46,27 @@ class Sulran {
         return this._pressed[keyCode];
       },
       onKeydown: function(event) {
-        switch (event.keyCode) {
-          case 65:
-            obj.userPosition[0]-=3;
-            break;
-          case 68:
-            obj.userPosition[0]+=3;
-            break;
-          case 87:
-            obj.userPosition[1]-=3;
-            break;
-          case 83:
-            obj.userPosition[1]+=3;
-            break;
-          default:
-            break;
+        var movement = {
+          "up": false,
+          "dowm": false,
+          "left": false,
+          "right": false,
         }
+        if (event.keyCode == 65) {
+          movement.left = true;
+        }
+        if (event.keyCode == 68) {
+          movement.right = true;
+        }
+        if (event.keyCode == 87) {
+          movement.up = true;
+        }
+        if (event.keyCode == 83) {
+          movement.down = true;
+        }
+
+        obj.player.move(movement);
+
         this._pressed[event.keyCode] = true;
       },
       onKeyup: function(event) {
@@ -70,35 +75,9 @@ class Sulran {
     }
   }
 
-  buildMap() {
-    var rtnMap = [];
-    var userPosOnGrid = {
-      "x": Math.floor(this.userPosition[0] / 40),
-      "y": Math.floor(this.userPosition[1] / 40)
-    }
-    for (var y = userPosOnGrid.y - 11; y < userPosOnGrid.y + 13; y++) {
-      var row = [];
-      for (var x = userPosOnGrid.x - 13; x < userPosOnGrid.x + 14; x++) {
-        if (y < 0 || x < 0) {
-          row.push("b");
-        } else if (y >= map.sulran.ground.length || x >= map.sulran.ground[0].length) {
-          row.push("b");
-        } else {
-          row.push(map.sulran.ground[y][x]);
-        }
-      }
-      rtnMap.push(row);
-    }
-    this.graphics.visibleMap = {
-      "map": rtnMap,
-      "pModX": this.userPosition[0] % 40,
-      "pModY": this.userPosition[1] % 40
-    }
-  }
-
   draw() {
     //get all necessary data
-    this.buildMap();
+    this.graphics.visibleMap = this.map.build(this.player.position);
 
     //draw
     this.graphics.draw();
@@ -170,8 +149,6 @@ class Draw {
       xPos = -40 - (this.visibleMap.pModX);
       yPos += 40;
     }
-
-    console.log(this.visibleMap.pModX, this.visibleMap.pModY);
   }
 
   player() {
@@ -185,5 +162,60 @@ class Draw {
     this.player();
     this.UI();
   }
+
+}
+
+class Player {
+  constructor(map) {
+    this.position = [40, 40];
+    this.map = map;
+  }
+
+  move(movement) {
+    if (movement.left)
+      this.position[0]-=3;
+    if (movement.right)
+      this.position[0]+=3;
+    if (movement.up)
+      this.position[1]-=3;
+    if (movement.down)
+      this.position[1]+=3;
+
+  }
+}
+
+class Map {
+  constructor() {
+
+  }
+
+  build(playerPos) {
+    var rtnMap = [];
+    var userPosOnGrid = {
+      "x": Math.floor(playerPos[0] / 40),
+      "y": Math.floor(playerPos[1] / 40)
+    }
+    for (var y = userPosOnGrid.y - 11; y < userPosOnGrid.y + 13; y++) {
+      var row = [];
+      for (var x = userPosOnGrid.x - 13; x < userPosOnGrid.x + 14; x++) {
+        if (y < 0 || x < 0) {
+          row.push("b");
+        } else if (y >= map.sulran.ground.length || x >= map.sulran.ground[0].length) {
+          row.push("b");
+        } else {
+          row.push(map.sulran.ground[y][x]);
+        }
+      }
+      rtnMap.push(row);
+    }
+    var graphics = {
+      "map": rtnMap,
+      "pModX": playerPos[0] % 40,
+      "pModY": playerPos[1] % 40
+    }
+
+    return graphics;
+  }
+
 
 }
