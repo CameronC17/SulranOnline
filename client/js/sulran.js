@@ -172,21 +172,24 @@ class Player {
   }
 
   move(movement) {
-    if (movement.left)
-      this.position[0]-=3;
-    if (movement.right)
-      this.position[0]+=3;
-    if (movement.up)
-      this.position[1]-=3;
-    if (movement.down)
-      this.position[1]+=3;
-
+    this.position = this.map.checkMove(this.position, movement, 3);
   }
 }
 
 class Map {
   constructor() {
 
+  }
+
+  checkMove(currPos, dir, speed) {
+    var userPosOnGrid = {
+      "x": Math.floor(currPos[0] / 40),
+      "y": Math.floor(currPos[1] / 40)
+    }
+
+    // var targetMove = {
+    //   "x": Math.floor((currPos[0]))
+    // }
   }
 
   build(playerPos) {
