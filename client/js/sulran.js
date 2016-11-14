@@ -1,4 +1,4 @@
-debug = true;
+var debug = true;
 
 class Sulran {
     constructor(canvas, connString) {
@@ -157,7 +157,7 @@ class Draw {
 
     player() {
         this.ctx.fillStyle = "#ffff66";
-        this.ctx.fillRect(480, 355, 40, 70);
+        this.ctx.fillRect(480, 357, 40, 70);
     }
 
     draw() {
