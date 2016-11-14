@@ -7,8 +7,8 @@ var ctx = c.getContext("2d");
 
 //game vars
 
-var cameraPos = { "x": 0, "y": 0 };
-var mousePos = { "x": -1, "y": -1};
+var camera = { "x": 3, "y": 5 };
+var mouse = { "x": -1, "y": -1};
 
 window.addEventListener('mousedown', function(e) {Mouse.mouseDown()}, false);
 window.addEventListener('mouseup', function(e) {Mouse.mouseUp()}, false);
@@ -43,8 +43,8 @@ function getTile(tile) {
 function drawMap() {
   for (var y = 0; y < 30; y++) {
     for (var x = 0; x < 56; x++) {
-      if (x < map.sulran.ground[0].length && y < map.sulran.ground.length) {
-        ctx.fillStyle=getTile(map.sulran.ground[y][x]);
+      if (x + camera.x < map.sulran.ground[0].length && y + camera.y < map.sulran.ground.length) {
+        ctx.fillStyle=getTile(map.sulran.ground[y + camera.y][x + camera.x]);
         ctx.fillRect(x * 25, y * 25, 25, 25);
       } else {
         ctx.fillStyle="#000";
