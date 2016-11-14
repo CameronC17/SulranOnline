@@ -48,7 +48,7 @@ class Sulran {
             onKeydown: function(event) {
                 var movement = {
                     "up": false,
-                    "dowm": false,
+                    "down": false,
                     "left": false,
                     "right": false,
                 }
