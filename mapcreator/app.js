@@ -7,9 +7,10 @@ var ctx = c.getContext("2d");
 
 //game vars
 
-var camera = { "x": 3, "y": 5 };
-var mouse = { "x": -1, "y": -1};
+var camera = { "x": 0, "y": 0 };
+var mouse = { "x": -1, "y": -1 };
 var lastPress = new Date().getTime();
+var hoverTile = { "x": -1, "y": -1 };
 
 window.addEventListener('mousedown', function(e) {Mouse.mouseDown()}, false);
 window.addEventListener('mouseup', function(e) {Mouse.mouseUp()}, false);
@@ -31,6 +32,9 @@ function getTile(tile) {
             break;
         case "g1":
             return "#33ff33";
+            break;
+        case "g2":
+            return "#117711";
             break;
         case "b":
             return "#000";
@@ -73,7 +77,31 @@ function checkMovementKeys() {
 }
 
 function drawMouseHover() {
+  //check if mouse is within boundaries
+  if (Mouse.pos.x > 0 && Mouse.pos.x < 1250 && Mouse.pos.y > 0 && Mouse.pos.y < 750) {
+    hoverTile.x = Math.floor(Mouse.pos.x / 25);
+    hoverTile.y = Math.floor(Mouse.pos.y / 25);
 
+    var hoverPos = {
+      "x": Mouse.pos.x - (Mouse.pos.x % 25),
+      "y": Mouse.pos.y - (Mouse.pos.y % 25)
+    }
+    ctx.globalAlpha=0.8;
+    ctx.fillStyle="#fff600";
+    ctx.fillRect(hoverPos.x, hoverPos.y, 25, 25);
+    ctx.globalAlpha=1;
+  }
+}
+
+function changeTile() {
+  //if the mouse is down
+  if (Mouse.down) {
+    //if we are hovering over a tile
+    if (hoverTile.x >= 0 && hoverTile.y >= 0) {
+      //set that tile to the new one
+      map.sulran.ground[hoverTile.y][hoverTile.x] = "g2";
+    }
+  }
 }
 
 var recursiveAnim = function() {
@@ -91,6 +119,7 @@ var Mouse = {
   down: false,
   mouseMove: function(event) {
     this.pos = this.getMousePos(event);
+    changeTile();
   },
   getMousePos: function(event) {
       var rect = c.getBoundingClientRect();
@@ -100,12 +129,13 @@ var Mouse = {
       }
   },
   mouseDown: function() {
-      this.down = true;
+    this.down = true;
+    changeTile();
   },
   mouseUp: function() {
     this.pos = {"x": -1, "y": -1};
-    lastPress -= 500;
     this.down = false;
+    lastPress -= 500;
   },
   reset: function() {
     this.pos = {"x": -1, "y": -1};
