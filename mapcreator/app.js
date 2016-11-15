@@ -5,8 +5,14 @@ var animFrame = window.requestAnimationFrame || window.webkitRequestAnimationFra
 var c = document.getElementById("canvas");
 var ctx = c.getContext("2d");
 
-//game vars
+var map = null;
 
+//html elements
+var textarea = document.getElementById('textarea');
+document.getElementById('input').addEventListener("click", inputMap);
+document.getElementById('output').addEventListener("click", outputMap);
+
+//game vars
 var camera = { "x": 0, "y": 0 };
 var mouse = { "x": -1, "y": -1 };
 var lastPress = new Date().getTime();
@@ -18,6 +24,21 @@ window.addEventListener('mousemove', function(e) {Mouse.mouseMove(e)}, false);
 
 window.addEventListener('keyup', function(e) { Key.onKeyup(e); }, false);
 window.addEventListener('keydown', function(e) { Key.onKeydown(e); }, false);
+
+function inputMap() {
+  map = JSON.parse(textarea.value);
+  document.getElementById('input').style.display = "none";
+  textarea.value = "";
+}
+
+function outputMap() {
+  textarea.value = map;
+}
+
+function clearScreen() {
+  ctx.fillStyle="#fff";
+  ctx.clearRect(0, 0, c.width, c.height);
+}
 
 function drawSidebar() {
   ctx.fillStyle="#888888";
@@ -48,8 +69,8 @@ function getTile(tile) {
 function drawMap() {
   for (var y = 0; y < 30; y++) {
     for (var x = 0; x < 56; x++) {
-      if (x + camera.x >= 0 && y + camera.y >= 0 && x + camera.x < map.sulran.ground[0].length && y + camera.y < map.sulran.ground.length) {
-        ctx.fillStyle=getTile(map.sulran.ground[y + camera.y][x + camera.x]);
+      if (x + camera.x >= 0 && y + camera.y >= 0 && x + camera.x < map.ground[0].length && y + camera.y < map.ground.length) {
+        ctx.fillStyle=getTile(map.ground[y + camera.y][x + camera.x]);
         ctx.fillRect(x * 25, y * 25, 25, 25);
       } else {
         ctx.fillStyle="#000";
@@ -99,14 +120,16 @@ function changeTile() {
     //if we are hovering over a tile
     if (hoverTile.x >= 0 && hoverTile.y >= 0) {
       //set that tile to the new one
-      map.sulran.ground[hoverTile.y][hoverTile.x] = "g2";
+      map.ground[hoverTile.y + camera.y][hoverTile.x + camera.x] = "g2";
     }
   }
 }
 
 var recursiveAnim = function() {
+  clearScreen();
   //console.log(Key.isDown(Key.SPACE));
-  drawMap();
+  if (map != null)
+    drawMap();
   drawSidebar();
   drawMouseHover();
   checkMovementKeys();
@@ -119,7 +142,8 @@ var Mouse = {
   down: false,
   mouseMove: function(event) {
     this.pos = this.getMousePos(event);
-    changeTile();
+    if (map != null)
+      changeTile();
   },
   getMousePos: function(event) {
       var rect = c.getBoundingClientRect();
@@ -130,7 +154,8 @@ var Mouse = {
   },
   mouseDown: function() {
     this.down = true;
-    changeTile();
+    if (map != null)
+      changeTile();
   },
   mouseUp: function() {
     this.pos = {"x": -1, "y": -1};
