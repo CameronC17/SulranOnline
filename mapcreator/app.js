@@ -32,7 +32,7 @@ function inputMap() {
 }
 
 function outputMap() {
-  textarea.value = map;
+  textarea.value = JSON.stringify(map);
 }
 
 function clearScreen() {
