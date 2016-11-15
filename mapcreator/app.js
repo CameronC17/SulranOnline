@@ -53,6 +53,14 @@ function clearScreen() {
 function drawSidebar() {
   ctx.fillStyle="#888888";
   ctx.fillRect(1250, 0, 150, c.height);//dfgdfgd
+
+  //now for the selected tile bit
+  ctx.fillStyle="#fff";
+  ctx.fillRect(1250, 600, 150, 2);
+  ctx.font="20px Arial";
+  ctx.fillText("Selected Tile", 1266, 626);
+  ctx.fillStyle=getTile(selectedTile);
+  ctx.fillRect(1285, 640, 80, 80);
 }
 
 //paste the get tile function from sulran into here!!!!
@@ -130,7 +138,7 @@ function changeTile() {
     //if we are hovering over a tile
     if (hoverTile.x + camera.x >= 0 && hoverTile.y + camera.y >= 0 && hoverTile.x + camera.x < editMap.ground[0].length && hoverTile.y + camera.y < editMap.ground.length) {
       //set that tile to the new one
-      editMap.ground[hoverTile.y + camera.y][hoverTile.x + camera.x] = "g2";
+      editMap.ground[hoverTile.y + camera.y][hoverTile.x + camera.x] = selectedTile;
     }
   }
 }
@@ -144,7 +152,10 @@ function drawTileSelector() {
 
 function tileSelector() {
   for (let button of buttons) {
-    
+    var buttPos = { "x": button.x + 1250, "y": button.y + 0 }
+    if (Mouse.pos.x > buttPos.x && Mouse.pos.x < buttPos.x + 25 && Mouse.pos.y > buttPos.y && Mouse.pos.y < buttPos.y + 25) {
+      selectedTile = button.type;
+    }
   }
 }
 
