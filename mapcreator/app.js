@@ -24,14 +24,16 @@ var tileButtons = [
   {"type": "g1", "x": 20, "y": 10},
   {"type": "g2", "x": 50, "y": 10},
   {"type": "w1", "x": 80, "y": 10},
-  {"type": "b1", "x": 110, "y": 10}
+  {"type": "b1", "x": 110, "y": 10},
+  {"type": "new", "x": 20, "y": 40}
 ];
 
 var sizeButtons = [
-  { "type": "x+", "x": 20, "y": 20 },
-  { "type": "x-", "x": 60, "y": 20 },
-  { "type": "y+", "x": 20, "y": 60 },
-  { "type": "y-", "x": 60, "y": 60 },
+  { "type": "manual", "x": 108, "y": 12 },
+  { "type": "x+", "x": 40, "y": 35 },
+  { "type": "x-", "x": 80, "y": 35 },
+  { "type": "y+", "x": 40, "y": 66 },
+  { "type": "y-", "x": 80, "y": 66 }
 ];
 
 window.addEventListener('mousedown', function(e) { Mouse.mouseDown() }, false);
@@ -94,6 +96,9 @@ function getTile(tile) {
             break;
         case "b":
             return "#000";
+            break;
+        case "new":
+            return "#ff02fa";
             break;
         default:
             return "#0000ff";
@@ -176,6 +181,95 @@ function tileSelector() {
   }
 }
 
+function drawSizeChanger() {
+  for (let button of sizeButtons) {
+    ctx.font="14px Arial";
+    var xWidth = 25;
+    if (button.type == "manual") {
+      ctx.font="11px Arial";
+      xWidth = 40;
+    }
+    ctx.fillStyle="#000088";
+    ctx.fillRect(1250 + button.x, 500 + button.y, xWidth, 18);
+    ctx.fillStyle="#fff";
+    ctx.fillText(button.type, 1250 + button.x + 4, 500 + button.y + 14);
+  }
+}
+
+function editMapSize(x, y) {
+  console.log(x, y);
+  //if we want to add to the x
+  if (x > 0) {
+    for (let row of editMap.ground) {
+      for (var i = 0; i < x; i++) {
+        row.push("new");
+      }
+    }
+  } else if (x < 0) {
+    for (let row of editMap.ground) {
+      x *= -1;
+      row.splice(-x, x);
+    }
+  }
+
+  //if we want to add to the y
+  if (y > 0) {
+    //populate the array to add to the y
+    var yAdd = [];
+    for (let column of editMap.ground[0]) {
+      yAdd.push("new");
+    }
+    // add the arrays to the big array
+    for (var i = 0; i < y; i++) {
+      editMap.ground.push(yAdd);
+    }
+  } else if (y < 0) {
+    y *= -1;
+    editMap.ground.splice(-y, y);
+  }
+
+  //console.log(editMap.ground[0].length, editMap.ground.length);
+}
+
+function manualSetSize() {
+  var mapWidth = window.prompt("Please enter the width you want.");
+  var mapHeight = window.prompt("Please enter the height you want.");
+  var currWidth = editMap.ground[0].length;
+  var currHeight = editMap.ground.length;
+  editMapSize((mapWidth - currWidth), (mapHeight - currHeight));
+}
+
+function sizeChanger() {
+  for (let button of sizeButtons) {
+    var buttPos = { "x": button.x + 1250, "y": button.y + 500 };
+    var xWidth = 25;
+    if (button.type == "manual")
+      xWidth = 40;
+    if (Mouse.pos.x > buttPos.x && Mouse.pos.x < buttPos.x + xWidth && Mouse.pos.y > buttPos.y && Mouse.pos.y < buttPos.y + 18) {
+      switch (button.type) {
+        case "manual":
+          manualSetSize();
+          break;
+        case "x+":
+          editMapSize(1, 0);
+          break;
+        case "x-":
+          editMapSize(-1, 0);
+          break;
+        case "y+":
+          editMapSize(0, 1);
+          break;
+        case "y-":
+          editMapSize(0, -1);
+          break;
+        default:
+          console.log("Unkown button clicked. ?!?!?!1");
+          break;
+      }
+    }
+  }
+}
+
 var recursiveAnim = function() {
   clearScreen();
   //console.log(Key.isDown(Key.SPACE));
@@ -183,6 +277,7 @@ var recursiveAnim = function() {
     drawMap();
   drawSidebar();
   drawTileSelector();
+  drawSizeChanger();
   drawMouseHover();
   checkMovementKeys();
   animFrame(recursiveAnim);
@@ -206,15 +301,22 @@ var Mouse = {
   },
   mouseDown: function() {
     this.down = true;
+    //if we have a map loaded
     if (editMap != null) {
+      //if the click isnt in the sidebar
       if (this.pos.x < 1250)
         changeTile();
-      else
-        tileSelector();
+      else {
+        //if were at the top or bottom of the sidebar
+        if (this.pos.y < 500)
+          tileSelector();
+        else
+          sizeChanger();
+      }
     }
   },
   mouseUp: function() {
-    this.pos = {"x": -1, "y": -1};
+    //this.pos = {"x": -1, "y": -1};
     this.down = false;
     lastPress -= 500;
   },
