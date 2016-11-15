@@ -20,11 +20,18 @@ var hoverTile = { "x": -1, "y": -1 };
 var selectedTile = "w1";
 
 //tile button vars
-var buttons = [
+var tileButtons = [
   {"type": "g1", "x": 20, "y": 10},
   {"type": "g2", "x": 50, "y": 10},
   {"type": "w1", "x": 80, "y": 10},
   {"type": "b1", "x": 110, "y": 10}
+];
+
+var sizeButtons = [
+  { "type": "x+", "x": 20, "y": 20 },
+  { "type": "x-", "x": 60, "y": 20 },
+  { "type": "y+", "x": 20, "y": 60 },
+  { "type": "y-", "x": 60, "y": 60 },
 ];
 
 window.addEventListener('mousedown', function(e) { Mouse.mouseDown() }, false);
@@ -61,6 +68,16 @@ function drawSidebar() {
   ctx.fillText("Selected Tile", 1266, 626);
   ctx.fillStyle=getTile(selectedTile);
   ctx.fillRect(1285, 640, 80, 80);
+
+  //and the increase/decrease size bit
+  ctx.fillStyle="#fff";
+  ctx.fillRect(1250, 500, 150, 2);
+  ctx.font="16px Arial";
+  ctx.fillText("Change size", 1266, 526);
+  ctx.fillStyle="#550099";
+  ctx.fillText("X", 1266, 552);
+  ctx.fillText("Y", 1266, 580);
+
 }
 
 //paste the get tile function from sulran into here!!!!
@@ -144,14 +161,14 @@ function changeTile() {
 }
 
 function drawTileSelector() {
-  for (let button of buttons) {
+  for (let button of tileButtons) {
     ctx.fillStyle=getTile(button.type);
     ctx.fillRect(1250 + button.x, 0 + button.y, 25, 25);
   }
 }
 
 function tileSelector() {
-  for (let button of buttons) {
+  for (let button of tileButtons) {
     var buttPos = { "x": button.x + 1250, "y": button.y + 0 }
     if (Mouse.pos.x > buttPos.x && Mouse.pos.x < buttPos.x + 25 && Mouse.pos.y > buttPos.y && Mouse.pos.y < buttPos.y + 25) {
       selectedTile = button.type;
