@@ -5,7 +5,7 @@ var animFrame = window.requestAnimationFrame || window.webkitRequestAnimationFra
 var c = document.getElementById("canvas");
 var ctx = c.getContext("2d");
 
-var map = null;
+var editMap = null;
 
 //html elements
 var textarea = document.getElementById('textarea');
@@ -18,6 +18,14 @@ var mouse = { "x": -1, "y": -1 };
 var lastPress = new Date().getTime();
 var hoverTile = { "x": -1, "y": -1 };
 
+//tile button vars
+var buttons = [
+  {"type": "g1", "x": 50, "y": 50},
+  {"type": "g2", "x": 50, "y": 50},
+  {"type": "w1", "x": 50, "y": 50},
+  {"type": "b1", "x": 50, "y": 50},
+];
+
 window.addEventListener('mousedown', function(e) {Mouse.mouseDown()}, false);
 window.addEventListener('mouseup', function(e) {Mouse.mouseUp()}, false);
 window.addEventListener('mousemove', function(e) {Mouse.mouseMove(e)}, false);
@@ -26,13 +34,14 @@ window.addEventListener('keyup', function(e) { Key.onKeyup(e); }, false);
 window.addEventListener('keydown', function(e) { Key.onKeydown(e); }, false);
 
 function inputMap() {
-  map = JSON.parse(textarea.value);
+  //editMap = JSON.parse(textarea.value);
+  editMap = map.sulran;
   document.getElementById('input').style.display = "none";
   textarea.value = "";
 }
 
 function outputMap() {
-  textarea.value = JSON.stringify(map);
+  textarea.value = JSON.stringify(editMap);
 }
 
 function clearScreen() {
@@ -69,8 +78,8 @@ function getTile(tile) {
 function drawMap() {
   for (var y = 0; y < 30; y++) {
     for (var x = 0; x < 56; x++) {
-      if (x + camera.x >= 0 && y + camera.y >= 0 && x + camera.x < map.ground[0].length && y + camera.y < map.ground.length) {
-        ctx.fillStyle=getTile(map.ground[y + camera.y][x + camera.x]);
+      if (x + camera.x >= 0 && y + camera.y >= 0 && x + camera.x < editMap.ground[0].length && y + camera.y < editMap.ground.length) {
+        ctx.fillStyle=getTile(editMap.ground[y + camera.y][x + camera.x]);
         ctx.fillRect(x * 25, y * 25, 25, 25);
       } else {
         ctx.fillStyle="#000";
@@ -83,7 +92,7 @@ function drawMap() {
 function checkMovementKeys() {
   var now = new Date().getTime();
   //if the last press was over 0.2secs ago
-  if (now > lastPress + 100) {
+  if (now > lastPress + 60) {
     if (Key.isDown(Key.LEFT))
       camera.x--;
     if (Key.isDown(Key.RIGHT))
@@ -118,9 +127,9 @@ function changeTile() {
   //if the mouse is down
   if (Mouse.down) {
     //if we are hovering over a tile
-    if (hoverTile.x >= 0 && hoverTile.y >= 0) {
+    if (hoverTile.x + camera.x >= 0 && hoverTile.y + camera.y >= 0 && hoverTile.x + camera.x < editMap.ground[0].length && hoverTile.y + camera.y < editMap.ground.length) {
       //set that tile to the new one
-      map.ground[hoverTile.y + camera.y][hoverTile.x + camera.x] = "g2";
+      editMap.ground[hoverTile.y + camera.y][hoverTile.x + camera.x] = "g2";
     }
   }
 }
@@ -128,7 +137,7 @@ function changeTile() {
 var recursiveAnim = function() {
   clearScreen();
   //console.log(Key.isDown(Key.SPACE));
-  if (map != null)
+  if (editMap != null)
     drawMap();
   drawSidebar();
   drawMouseHover();
@@ -142,7 +151,7 @@ var Mouse = {
   down: false,
   mouseMove: function(event) {
     this.pos = this.getMousePos(event);
-    if (map != null)
+    if (editMap != null)
       changeTile();
   },
   getMousePos: function(event) {
@@ -154,7 +163,7 @@ var Mouse = {
   },
   mouseDown: function() {
     this.down = true;
-    if (map != null)
+    if (editMap != null)
       changeTile();
   },
   mouseUp: function() {
