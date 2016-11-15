@@ -17,18 +17,19 @@ var camera = { "x": 0, "y": 0 };
 var mouse = { "x": -1, "y": -1 };
 var lastPress = new Date().getTime();
 var hoverTile = { "x": -1, "y": -1 };
+var selectedTile = "w1";
 
 //tile button vars
 var buttons = [
-  {"type": "g1", "x": 50, "y": 50},
-  {"type": "g2", "x": 50, "y": 50},
-  {"type": "w1", "x": 50, "y": 50},
-  {"type": "b1", "x": 50, "y": 50},
+  {"type": "g1", "x": 20, "y": 10},
+  {"type": "g2", "x": 50, "y": 10},
+  {"type": "w1", "x": 80, "y": 10},
+  {"type": "b1", "x": 110, "y": 10}
 ];
 
-window.addEventListener('mousedown', function(e) {Mouse.mouseDown()}, false);
-window.addEventListener('mouseup', function(e) {Mouse.mouseUp()}, false);
-window.addEventListener('mousemove', function(e) {Mouse.mouseMove(e)}, false);
+window.addEventListener('mousedown', function(e) { Mouse.mouseDown() }, false);
+window.addEventListener('mouseup', function(e) { Mouse.mouseUp() }, false);
+window.addEventListener('mousemove', function(e) { Mouse.mouseMove(e) }, false);
 
 window.addEventListener('keyup', function(e) { Key.onKeyup(e); }, false);
 window.addEventListener('keydown', function(e) { Key.onKeydown(e); }, false);
@@ -134,12 +135,26 @@ function changeTile() {
   }
 }
 
+function drawTileSelector() {
+  for (let button of buttons) {
+    ctx.fillStyle=getTile(button.type);
+    ctx.fillRect(1250 + button.x, 0 + button.y, 25, 25);
+  }
+}
+
+function tileSelector() {
+  for (let button of buttons) {
+    
+  }
+}
+
 var recursiveAnim = function() {
   clearScreen();
   //console.log(Key.isDown(Key.SPACE));
   if (editMap != null)
     drawMap();
   drawSidebar();
+  drawTileSelector();
   drawMouseHover();
   checkMovementKeys();
   animFrame(recursiveAnim);
@@ -163,8 +178,12 @@ var Mouse = {
   },
   mouseDown: function() {
     this.down = true;
-    if (editMap != null)
-      changeTile();
+    if (editMap != null) {
+      if (this.pos.x < 1250)
+        changeTile();
+      else
+        tileSelector();
+    }
   },
   mouseUp: function() {
     this.pos = {"x": -1, "y": -1};
