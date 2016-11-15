@@ -159,12 +159,9 @@ function drawMouseHover() {
 }
 
 function changeTile() {
-  console.log(editMap.ground);
   //if we are hovering over a tile
   if (hoverTile.x >= 0 && hoverTile.y >= 0 && hoverTile.x < editMap.ground[0].length && hoverTile.y < editMap.ground.length) {
-    //set that tile to the new one
     editMap.ground[hoverTile.y][hoverTile.x] = selectedTile;
-    //console.log(editMap.ground);
   }
 }
 
@@ -216,14 +213,13 @@ function editMapSize(x, y) {
 
   //if we want to add to the y
   if (y > 0) {
-    //populate the array to add to the y
-    var yAdd = [];
-    for (var i = 0; i < editMap.ground[0].length; i++) {
-      yAdd.push("new");
-    }
     // add the arrays to the big array
     for (var i = 0; i < y; i++) {
-      editMap.ground.push(yAdd);
+      editMap.ground.push([]);
+      var numColumns = editMap.ground[0].length;
+      for (var n = 0; n < numColumns; n++) {
+        editMap.ground[editMap.ground.length - 1].push("new");
+      }
     }
   } else if (y < 0) {
     y *= -1;
@@ -292,8 +288,7 @@ var Mouse = {
   mouseMove: function(event) {
     this.pos = this.getMousePos(event);
     if (editMap != null && this.down)
-      console.log("nope");
-      //changeTile();
+      changeTile();
   },
   getMousePos: function(event) {
       var rect = c.getBoundingClientRect();
@@ -308,8 +303,7 @@ var Mouse = {
     if (editMap != null) {
       //if the click isnt in the sidebar
       if (this.pos.x < 1250) {
-        console.log(editMap.ground);
-        //changeTile();
+        changeTile();
       }
       else {
         //if were at the top or bottom of the sidebar
