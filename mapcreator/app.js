@@ -24,7 +24,7 @@ var tileButtons = [
   {"type": "g1", "x": 20, "y": 10},
   {"type": "g2", "x": 50, "y": 10},
   {"type": "w1", "x": 80, "y": 10},
-  {"type": "b1", "x": 110, "y": 10},
+  {"type": "b", "x": 110, "y": 10},
   {"type": "new", "x": 20, "y": 40}
 ];
 
@@ -79,6 +79,10 @@ function drawSidebar() {
   ctx.fillStyle="#550099";
   ctx.fillText("X", 1266, 552);
   ctx.fillText("Y", 1266, 580);
+
+  //hover tile
+  ctx.fillStyle="#fff";
+  ctx.fillText("x:" + hoverTile.x + ", y:" + hoverTile.y, 1260, 490);
 
 }
 
@@ -140,8 +144,8 @@ function checkMovementKeys() {
 function drawMouseHover() {
   //check if mouse is within boundaries
   if (Mouse.pos.x > 0 && Mouse.pos.x < 1250 && Mouse.pos.y > 0 && Mouse.pos.y < 750) {
-    hoverTile.x = Math.floor(Mouse.pos.x / 25);
-    hoverTile.y = Math.floor(Mouse.pos.y / 25);
+    hoverTile.x = Math.floor(Mouse.pos.x / 25) + camera.x;
+    hoverTile.y = Math.floor(Mouse.pos.y / 25) + camera.y;
 
     var hoverPos = {
       "x": Mouse.pos.x - (Mouse.pos.x % 25),
@@ -155,13 +159,12 @@ function drawMouseHover() {
 }
 
 function changeTile() {
-  //if the mouse is down
-  if (Mouse.down) {
-    //if we are hovering over a tile
-    if (hoverTile.x + camera.x >= 0 && hoverTile.y + camera.y >= 0 && hoverTile.x + camera.x < editMap.ground[0].length && hoverTile.y + camera.y < editMap.ground.length) {
-      //set that tile to the new one
-      editMap.ground[hoverTile.y + camera.y][hoverTile.x + camera.x] = selectedTile;
-    }
+  console.log(editMap.ground);
+  //if we are hovering over a tile
+  if (hoverTile.x >= 0 && hoverTile.y >= 0 && hoverTile.x < editMap.ground[0].length && hoverTile.y < editMap.ground.length) {
+    //set that tile to the new one
+    editMap.ground[hoverTile.y][hoverTile.x] = selectedTile;
+    //console.log(editMap.ground);
   }
 }
 
@@ -197,7 +200,6 @@ function drawSizeChanger() {
 }
 
 function editMapSize(x, y) {
-  console.log(x, y);
   //if we want to add to the x
   if (x > 0) {
     for (let row of editMap.ground) {
@@ -206,8 +208,8 @@ function editMapSize(x, y) {
       }
     }
   } else if (x < 0) {
+    x *= -1;
     for (let row of editMap.ground) {
-      x *= -1;
       row.splice(-x, x);
     }
   }
@@ -216,7 +218,7 @@ function editMapSize(x, y) {
   if (y > 0) {
     //populate the array to add to the y
     var yAdd = [];
-    for (let column of editMap.ground[0]) {
+    for (var i = 0; i < editMap.ground[0].length; i++) {
       yAdd.push("new");
     }
     // add the arrays to the big array
@@ -289,8 +291,9 @@ var Mouse = {
   down: false,
   mouseMove: function(event) {
     this.pos = this.getMousePos(event);
-    if (editMap != null)
-      changeTile();
+    if (editMap != null && this.down)
+      console.log("nope");
+      //changeTile();
   },
   getMousePos: function(event) {
       var rect = c.getBoundingClientRect();
@@ -304,8 +307,10 @@ var Mouse = {
     //if we have a map loaded
     if (editMap != null) {
       //if the click isnt in the sidebar
-      if (this.pos.x < 1250)
-        changeTile();
+      if (this.pos.x < 1250) {
+        console.log(editMap.ground);
+        //changeTile();
+      }
       else {
         //if were at the top or bottom of the sidebar
         if (this.pos.y < 500)
