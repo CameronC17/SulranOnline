@@ -53,12 +53,16 @@ function inputMap() {
 function outputMap() {
   //create a new data uri and then link the user to it
   //var link = "www.google.com";
-  var dataURI = encodeURIComponent("data:application/octet-stream;charset=utf-8;base64," + JSON.stringify(editMap));
+  //var dataURI = encodeURIComponent("data:application/octet-stream;charset=utf-8;base64," + JSON.stringify(editMap));
+  //var dataURI = encodeURIComponent({"cam": 3, "yes": "ok"});
   //console.log(dataURI);
-  window.open(
-      dataURI,
-      '_blank'
-    );
+  //window.open(
+    //  dataURI,
+      //'_blank'
+    //);
+
+  //document.getElementById('outputText').innerText = JSON.stringify(editMap);
+  textarea.value = JSON.stringify(editMap);
 
 }
 
@@ -79,14 +83,19 @@ function drawSidebar() {
   ctx.fillStyle=getTile(selectedTile);
   ctx.fillRect(1285, 640, 80, 80);
 
-  //and the increase/decrease size bit
   ctx.fillStyle="#fff";
   ctx.fillRect(1250, 500, 150, 2);
-  ctx.font="16px Arial";
-  ctx.fillText("Change size", 1266, 526);
-  ctx.fillStyle="#550099";
-  ctx.fillText("X", 1266, 552);
-  ctx.fillText("Y", 1266, 580);
+
+  //and the increase/decrease size bit
+  if (editMap != null) {
+    ctx.font="16px Arial";
+    ctx.fillText("Change size", 1266, 526);
+    ctx.fillStyle="#550099";
+    ctx.fillText("X", 1266, 552);
+    ctx.fillText("Y", 1266, 580);
+    ctx.fillText(editMap.ground[0].length, 1366, 552);
+    ctx.fillText(editMap.ground.length, 1366, 580);
+  }
 
   //hover tile
   ctx.fillStyle="#fff";
@@ -209,7 +218,7 @@ function editMapSize(x, y) {
   if (x > 0) {
     for (let row of editMap.ground) {
       for (var i = 0; i < x; i++) {
-        row.push("new");
+        row.push(selectedTile);
       }
     }
   } else if (x < 0) {
@@ -226,7 +235,7 @@ function editMapSize(x, y) {
       editMap.ground.push([]);
       var numColumns = editMap.ground[0].length;
       for (var n = 0; n < numColumns; n++) {
-        editMap.ground[editMap.ground.length - 1].push("new");
+        editMap.ground[editMap.ground.length - 1].push(selectedTile);
       }
     }
   } else if (y < 0) {
@@ -283,7 +292,8 @@ var recursiveAnim = function() {
     drawMap();
   drawSidebar();
   drawTileSelector();
-  drawSizeChanger();
+  if (editMap != null)
+    drawSizeChanger();
   drawMouseHover();
   checkMovementKeys();
   animFrame(recursiveAnim);
