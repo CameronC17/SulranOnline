@@ -141,7 +141,22 @@ function drawMap() {
   }
 }
 
-function checkMovementKeys() {
+function setWalls() {
+  for (var i = 0; i < editMap.ground.length; i++) {
+    //if we are at the top or bottom
+    if (i == 0 || i == editMap.ground.length - 1) {
+      for (var j = 0; j < editMap.ground[i].length; j++) {
+        editMap.ground[i][j] = selectedTile;
+      }
+    } else {
+        editMap.ground[i][0] = selectedTile;
+        editMap.ground[i][editMap.ground[i].length - 1] = selectedTile;
+    }
+  }
+}
+
+function checkKeys() {
+  //movement around the area
   var now = new Date().getTime();
   //if the last press was over 0.2secs ago
   if (now > lastPress + 60) {
@@ -156,6 +171,10 @@ function checkMovementKeys() {
 
     lastPress = now;
   }
+
+  //auto walls to the edges key
+  if (Key.isDown(Key.WALLS))
+    setWalls();
 }
 
 function drawMouseHover() {
@@ -295,7 +314,7 @@ var recursiveAnim = function() {
   if (editMap != null)
     drawSizeChanger();
   drawMouseHover();
-  checkMovementKeys();
+  checkKeys();
   animFrame(recursiveAnim);
 };
 animFrame(recursiveAnim);
@@ -350,6 +369,7 @@ var Key = {
   UP: 87,
   RIGHT: 68,
   DOWN: 83,
+  WALLS: 80,
   isDown: function(keyCode) {
       return this._pressed[keyCode];
   },
