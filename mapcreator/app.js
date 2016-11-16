@@ -51,7 +51,15 @@ function inputMap() {
 }
 
 function outputMap() {
-  textarea.value = JSON.stringify(editMap);
+  //create a new data uri and then link the user to it
+  //var link = "www.google.com";
+  var dataURI = encodeURIComponent("data:application/octet-stream;charset=utf-8;base64," + JSON.stringify(editMap));
+  //console.log(dataURI);
+  window.open(
+      dataURI,
+      '_blank'
+    );
+
 }
 
 function clearScreen() {
