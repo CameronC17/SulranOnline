@@ -214,7 +214,7 @@ function drawTileSelector() {
 function drawPlayerScale() {
   ctx.fillStyle="#f262bb";
   ctx.globalAlpha="0.7";
-  ctx.fillRect(400, 480, 25, 43.75);
+  ctx.fillRect(400, 481, 25, 43.75);
   ctx.globalAlpha="1";
 }
 
