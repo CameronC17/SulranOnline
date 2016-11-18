@@ -1,6 +1,8 @@
 var animFrame = window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame    || window.oRequestAnimationFrame      || window.msRequestAnimationFrame     || null ;
 
 //CANVAS IS 1400 X 750
+//tiles drawn at 62.5% of their actual size
+//draw the player at 25*43.75 (w*h)
 
 var c = document.getElementById("canvas");
 var ctx = c.getContext("2d");
@@ -100,6 +102,7 @@ function drawSidebar() {
   //hover tile
   ctx.fillStyle="#fff";
   ctx.fillText("x:" + hoverTile.x + ", y:" + hoverTile.y, 1260, 490);
+  ctx.fillRect(1250, 470, 150, 2);
 
 }
 
@@ -208,6 +211,13 @@ function drawTileSelector() {
   }
 }
 
+function drawPlayerScale() {
+  ctx.fillStyle="#f262bb";
+  ctx.globalAlpha="0.7";
+  ctx.fillRect(400, 480, 25, 43.75);
+  ctx.globalAlpha="1";
+}
+
 function tileSelector() {
   for (let button of tileButtons) {
     var buttPos = { "x": button.x + 1250, "y": button.y + 0 }
@@ -313,6 +323,7 @@ var recursiveAnim = function() {
   drawTileSelector();
   if (editMap != null)
     drawSizeChanger();
+  drawPlayerScale();
   drawMouseHover();
   checkKeys();
   animFrame(recursiveAnim);
