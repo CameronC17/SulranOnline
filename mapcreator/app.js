@@ -32,11 +32,11 @@ var tileButtons = [
 ];
 
 var objectButtons = [
-  { "object" : "tree1", "solid": true },
-  { "object" : "gate1", "solid": true },
-  { "object" : "sheep1", "solid": true },
-  { "object" : "box1", "solid": false },
-  { "object" : "seat1", "solid": false }
+  { "object" : "tree1" },
+  { "object" : "gate1" },
+  { "object" : "sheep1" },
+  { "object" : "box1" },
+  { "object" : "seat1" }
 ];
 
 var sizeButtons = [
@@ -147,22 +147,22 @@ function getTile(tile) {
 function getObject(obj) {
   switch (obj) {
     case "tree1":
-      return { "colour": "#f2fff2", "width": 12, "height": 55 };
+      return { "colour": "#f2fff2", "width": 12, "height": 55, "solid": true };
       break;
     case "seat1":
-      return { "colour": "#3388ff", "width": 80, "height": 16 };
+      return { "colour": "#3388ff", "width": 80, "height": 16, "solid": true };
       break;
     case "gate1":
-      return { "colour": "#996633", "width": 18, "height": 22 };
+      return { "colour": "#996633", "width": 18, "height": 22, "solid": true };
       break;
     case "sheep1":
-      return { "colour": "#fff", "width": 15, "height": 10 };
+      return { "colour": "#fff", "width": 15, "height": 10, "solid": false };
       break;
     case "box1":
-      return { "colour": "#ff9900", "width": 6, "height": 6 };
+      return { "colour": "#ff9900", "width": 6, "height": 6, "solid": false };
       break;
     default:
-      return { "colour": "#ff02fa", "width": 20, "height": 20 };
+      return { "colour": "#ff02fa", "width": 20, "height": 20, "solid": false };
       break;
   }
 }
@@ -256,6 +256,16 @@ function changeTile() {
   if (hoverTile.x >= 0 && hoverTile.y >= 0 && hoverTile.x < editMap.ground[0].length && hoverTile.y < editMap.ground.length) {
     editMap.ground[hoverTile.y][hoverTile.x] = selectedTile;
   }
+}
+
+function placeObject() {
+  var object = getObject(selectedObject);
+  var objData = {
+    "x": (camera.x * 25) + Mouse.pos.x - object.width,
+    "y": (camera.y * 25) + Mouse.pos.y - object.height
+  }
+  if (objData.x > 0 && objData.x + object.width < editMap.ground[0].length * 25 && objData.y > 0 && objData.y + object.height < editMap.ground.length * 25)
+    editMap.objects.push({ "object" : selectedObject, "x": objData.x, "y": objData.y, "solid": object.solid });
 }
 
 function drawTileSelector() {
@@ -434,7 +444,7 @@ var Mouse = {
   down: false,
   mouseMove: function(event) {
     this.pos = this.getMousePos(event);
-    if (editMap != null && this.down)
+    if (editMap != null && this.down && selectedObject == null)
       changeTile();
   },
   getMousePos: function(event) {
@@ -450,7 +460,10 @@ var Mouse = {
     if (editMap != null) {
       //if the click isnt in the sidebar
       if (this.pos.x < 1250) {
-        changeTile();
+        if (selectedObject == null)
+          changeTile();
+        else
+          placeObject();
       }
       else {
         //if were at the top or bottom of the sidebar
