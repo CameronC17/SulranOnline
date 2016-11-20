@@ -20,6 +20,7 @@ var mouse = { "x": -1, "y": -1 };
 var lastPress = new Date().getTime();
 var hoverTile = { "x": -1, "y": -1 };
 var selectedTile = "w1";
+var selectedObject = null;
 
 //tile button vars
 var tileButtons = [
@@ -28,6 +29,14 @@ var tileButtons = [
   {"type": "w1", "x": 80, "y": 10},
   {"type": "b", "x": 110, "y": 10},
   {"type": "new", "x": 20, "y": 40}
+];
+
+var objectButtons = [
+  { "object" : "tree1", "solid": true },
+  { "object" : "gate1", "solid": true },
+  { "object" : "sheep1", "solid": true },
+  { "object" : "box1", "solid": false },
+  { "object" : "seat1", "solid": false }
 ];
 
 var sizeButtons = [
@@ -88,6 +97,10 @@ function drawSidebar() {
   ctx.fillStyle="#fff";
   ctx.fillRect(1250, 500, 150, 2);
 
+  //object selector bit
+  ctx.fillStyle="#fff";
+  ctx.fillRect(1250, 260, 150, 2);
+
   //and the increase/decrease size bit
   if (editMap != null) {
     ctx.font="16px Arial";
@@ -130,6 +143,30 @@ function getTile(tile) {
     }
 }
 
+//eventully wont need the width and height and stuff in here when we get images, but for now its necessary
+function getObject(obj) {
+  switch (obj) {
+    case "tree1":
+      return { "colour": "#f2fff2", "width": 12, "height": 55 };
+      break;
+    case "seat1":
+      return { "colour": "#3388ff", "width": 80, "height": 16 };
+      break;
+    case "gate1":
+      return { "colour": "#996633", "width": 18, "height": 22 };
+      break;
+    case "sheep1":
+      return { "colour": "#fff", "width": 15, "height": 10 };
+      break;
+    case "box1":
+      return { "colour": "#ff9900", "width": 6, "height": 6 };
+      break;
+    default:
+      return { "colour": "#ff02fa", "width": 20, "height": 20 };
+      break;
+  }
+}
+
 function drawMap() {
   for (var y = 0; y < 30; y++) {
     for (var x = 0; x < 56; x++) {
@@ -140,6 +177,17 @@ function drawMap() {
         ctx.fillStyle="#000";
         ctx.fillRect(x * 25, y * 25, 25, 25);
       }
+    }
+  }
+}
+
+function drawObjects() {
+  for (let obj of editMap.objects) {
+    //if the object is in sight
+    if (obj.x > (camera.x * 25) && obj.x < ((camera.x + 50) * 25) && obj.y > (camera.y * 25) && obj.y < ((camera.y + 30) * 25)) {
+      var objData = getObject(obj.object);
+      ctx.fillStyle=objData.colour;
+      ctx.fillRect(obj.x - (camera.x * 25), obj.y - (camera.y * 25), objData.width, objData.height);
     }
   }
 }
@@ -191,8 +239,14 @@ function drawMouseHover() {
       "y": Mouse.pos.y - (Mouse.pos.y % 25)
     }
     ctx.globalAlpha=0.8;
-    ctx.fillStyle="#fff600";
-    ctx.fillRect(hoverPos.x, hoverPos.y, 25, 25);
+    if (selectedObject == null) {
+      ctx.fillStyle="#fff600";
+      ctx.fillRect(hoverPos.x, hoverPos.y, 25, 25);
+    } else {
+      var object = getObject(selectedObject);
+      ctx.fillStyle=object.colour;
+      ctx.fillRect(Mouse.pos.x - object.width, Mouse.pos.y - object.height, object.width, object.height);
+    }
     ctx.globalAlpha=1;
   }
 }
@@ -211,6 +265,32 @@ function drawTileSelector() {
   }
 }
 
+function drawObjectSelector() {
+  var currPos = { "x": 0, "y": 0 }
+  for (let button of objectButtons) {
+    var obj = getObject(button.object);
+    ctx.fillStyle="#222222";
+    ctx.fillRect(1270 + currPos.x, 270 + currPos.y, 25, 25);
+    ctx.fillStyle=obj.colour;
+    var scale = 0;
+    if (obj.width > obj.height) {
+      scale = obj.width / 25;
+      ctx.fillRect(1270 + currPos.x, 270 + currPos.y, 25, (obj.height / scale));
+    } else if (obj.height > obj.width) {
+      scale = obj.height / 25;
+      ctx.fillRect(1270 + currPos.x, 270 + currPos.y, (obj.width / scale), 25);
+    } else {
+      ctx.fillRect(1270 + currPos.x, 270 + currPos.y, 25, 25);
+    }
+
+    currPos.x += 30;
+    if (currPos.x > 110) {
+      currPos.x = 0;
+      currPos.y += 30;
+    }
+  }
+}
+
 function drawPlayerScale() {
   ctx.fillStyle="#f262bb";
   ctx.globalAlpha="0.7";
@@ -223,6 +303,22 @@ function tileSelector() {
     var buttPos = { "x": button.x + 1250, "y": button.y + 0 }
     if (Mouse.pos.x > buttPos.x && Mouse.pos.x < buttPos.x + 25 && Mouse.pos.y > buttPos.y && Mouse.pos.y < buttPos.y + 25) {
       selectedTile = button.type;
+      selectedObject = null;
+    }
+  }
+}
+
+function objectSelector() {
+  var currPos = { "x": 0, "y": 0 };
+  for (let button of objectButtons) {
+    var buttPos = { "x": 1270 + currPos.x, "y": 270 + currPos.y };
+    if (Mouse.pos.x > buttPos.x && Mouse.pos.x < buttPos.x + 25 && Mouse.pos.y > buttPos.y && Mouse.pos.y < buttPos.y + 25) {
+      selectedObject = button.object;
+    }
+    currPos.x += 30;
+    if (currPos.x > 110) {
+      currPos.x = 0;
+      currPos.y += 30;
     }
   }
 }
@@ -317,10 +413,13 @@ function sizeChanger() {
 var recursiveAnim = function() {
   clearScreen();
   //console.log(Key.isDown(Key.SPACE));
-  if (editMap != null)
+  if (editMap != null){
     drawMap();
+    drawObjects();
+  }
   drawSidebar();
   drawTileSelector();
+  drawObjectSelector();
   if (editMap != null)
     drawSizeChanger();
   drawPlayerScale();
@@ -355,9 +454,11 @@ var Mouse = {
       }
       else {
         //if were at the top or bottom of the sidebar
-        if (this.pos.y < 500)
+        if (this.pos.y < 260) {
           tileSelector();
-        else
+        } else if (this.pos.y < 470) {
+          objectSelector();
+        } else
           sizeChanger();
       }
     }

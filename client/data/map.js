@@ -22,9 +22,10 @@ var map = {
       ["w1", "g1", "g1", "g1", "g1", "g1", "g1", "g1", "g1", "g1", "g1", "g1", "w1"],
       ["w1", "w1", "w1", "w1", "w1", "w1", "w1", "w1", "w1", "w1", "w1", "w1", "w1"]
     ],
-    "over":
+    "objects":
     [
-      { "object" : "t1", "x": 4, "y": 4, "solid": true }
+      { "object" : "tree1", "x": 220, "y": 320, "solid": true },
+      { "object" : "seat1", "x": 64, "y": 46, "solid": false }
     ]
   }
 
