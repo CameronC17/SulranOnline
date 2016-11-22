@@ -18,7 +18,7 @@ var images = [
   },
   {
     "name" : "things",
-    "image" : "http://i.imgur.com/Uz2YLj9.png",
+    "image" : "http://i.imgur.com/JKPNOdD.png",
     "width" : 816,
     "height" : 208,
     "mWidth" : 816,
@@ -179,22 +179,22 @@ function getTile(tile) {
 function getObject(obj) {
   switch (obj) {
     case "tree1":
-      return { "colour": "#f2fff2", "width": 12, "height": 55, "solid": true };
+      return { "colour": "#f2fff2", "startX": 5, "startY": 1, "width": 50, "height": 53, "solid": true };
       break;
     case "seat1":
-      return { "colour": "#3388ff", "width": 80, "height": 16, "solid": true };
+      return { "colour": "#3388ff", "startX": 57, "startY": 21, "width": 30, "height": 15, "solid": true };
       break;
     case "gate1":
-      return { "colour": "#996633", "width": 18, "height": 22, "solid": true };
+      return { "colour": "#996633", "startX": 58, "startY": 1, "width": 19, "height": 16, "solid": true };
       break;
     case "sheep1":
-      return { "colour": "#fff", "width": 15, "height": 10, "solid": false };
+      return { "colour": "#fff", "startX": 88, "startY": 5, "width": 14, "height": 12, "solid": false };
       break;
     case "box1":
-      return { "colour": "#ff9900", "width": 6, "height": 6, "solid": false };
+      return { "colour": "#ff9900", "startX": 93, "startY": 21, "width": 18, "height": 26, "solid": false };
       break;
     default:
-      return { "colour": "#ff02fa", "width": 20, "height": 20, "solid": false };
+      return { "colour": "#ff02fa", "startX": 250, "startY": 50, "width": 15, "height": 15, "solid": false };
       break;
   }
 }
@@ -219,9 +219,10 @@ function drawObjects() {
     var object = getObject(obj.object);
     //if the object is in sight
     if (obj.x + object.width > (camera.x * 25) && obj.x < ((camera.x + 50) * 25) && obj.y + object.height > (camera.y * 25) && obj.y < ((camera.y + 30) * 25)) {
-      var objData = getObject(obj.object);
-      ctx.fillStyle=objData.colour;
-      ctx.fillRect(obj.x - (camera.x * 25), obj.y - (camera.y * 25), objData.width, objData.height);
+      var sprite = spriter.getSprite("things");
+      ctx.drawImage(sprite.image,object.startX,object.startY,object.width,object.height,obj.x - (camera.x * 25),obj.y - (camera.y * 25),object.width,object.height);
+      //ctx.fillStyle=objData.colour;
+      //ctx.fillRect(obj.x - (camera.x * 25), obj.y - (camera.y * 25), objData.width, objData.height);
     }
   }
 }
@@ -278,8 +279,9 @@ function drawMouseHover() {
       ctx.fillRect(hoverPos.x, hoverPos.y, 25, 25);
     } else {
       var object = getObject(selectedObject);
-      ctx.fillStyle=object.colour;
-      ctx.fillRect(Mouse.pos.x - object.width, Mouse.pos.y - object.height, object.width, object.height);
+      var sprite = spriter.getSprite("things");
+      ctx.drawImage(sprite.image,object.startX,object.startY,object.width,object.height,Mouse.pos.x - object.width, Mouse.pos.y - object.height,object.width,object.height);
+      //ctx.fillRect(Mouse.pos.x - object.width, Mouse.pos.y - object.height, object.width, object.height);
     }
     ctx.globalAlpha=1;
   }
@@ -316,16 +318,19 @@ function drawObjectSelector() {
     var obj = getObject(button.object);
     ctx.fillStyle="#222222";
     ctx.fillRect(1270 + currPos.x, 270 + currPos.y, 25, 25);
-    ctx.fillStyle=obj.colour;
+    var sprite = spriter.getSprite("things");
     var scale = 0;
     if (obj.width > obj.height) {
       scale = obj.width / 25;
-      ctx.fillRect(1270 + currPos.x, 270 + currPos.y, 25, (obj.height / scale));
+      ctx.drawImage(sprite.image,obj.startX,obj.startY,obj.width,obj.height,1270 + currPos.x,270 + currPos.y, 25, (obj.height / scale));
+      //ctx.fillRect(1270 + currPos.x, 270 + currPos.y, 25, (obj.height / scale));
     } else if (obj.height > obj.width) {
       scale = obj.height / 25;
-      ctx.fillRect(1270 + currPos.x, 270 + currPos.y, (obj.width / scale), 25);
+      ctx.drawImage(sprite.image,obj.startX,obj.startY,obj.width,obj.height,1270 + currPos.x,270 + currPos.y, (obj.width / scale), 25);
+      //ctx.fillRect(1270 + currPos.x, 270 + currPos.y, (obj.width / scale), 25);
     } else {
-      ctx.fillRect(1270 + currPos.x, 270 + currPos.y, 25, 25);
+      ctx.drawImage(sprite.image,obj.startX,obj.startY,obj.width,obj.height,1270 + currPos.x,270 + currPos.y, 25, 25);
+      //ctx.fillRect(1270 + currPos.x, 270 + currPos.y, 25, 25);
     }
 
     currPos.x += 30;
