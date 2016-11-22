@@ -8,12 +8,21 @@ var animFrame = window.requestAnimationFrame || window.webkitRequestAnimationFra
 var spriter = new Spriter();
 var images = [
   {
-    "name" : "tilesheet",
+    "name" : "tiles",
     "image" : "http://i.imgur.com/AFbBJVk.png",
-    "width" : 24,
-    "height" : 24,
+    "width" : 16,
+    "height" : 16,
     "mWidth" : 128,
     "mHeight" : 240,
+    "timing" : 0
+  },
+  {
+    "name" : "things",
+    "image" : "http://i.imgur.com/Uz2YLj9.png",
+    "width" : 816,
+    "height" : 208,
+    "mWidth" : 816,
+    "mHeight" : 208,
     "timing" : 0
   }
 ]
@@ -113,8 +122,9 @@ function drawSidebar() {
   ctx.fillRect(1250, 600, 150, 2);
   ctx.font="20px Arial";
   ctx.fillText("Selected Tile", 1266, 626);
-  ctx.fillStyle=getTile(selectedTile);
-  ctx.fillRect(1285, 640, 80, 80);
+  var tile = getTile(selectedTile);
+  var sprite = spriter.getSprite("tiles");
+  ctx.drawImage(sprite.image,tile.xPos,tile.yPos,16,16,1285, 640, 80, 80);
 
   ctx.fillStyle="#fff";
   ctx.fillRect(1250, 500, 150, 2);
@@ -194,7 +204,7 @@ function drawMap() {
     for (var x = 0; x < 56; x++) {
       if (x + camera.x >= 0 && y + camera.y >= 0 && x + camera.x < editMap.ground[0].length && y + camera.y < editMap.ground.length) {
         var tile = getTile(editMap.ground[y + camera.y][x + camera.x]);
-        var sprite = spriter.getSprite("tilesheet");
+        var sprite = spriter.getSprite("tiles");
         ctx.drawImage(sprite.image,tile.xPos,tile.yPos,16,16,x*25,y*25,25,25);
       } else {
         ctx.fillStyle="#000";
@@ -295,7 +305,7 @@ function placeObject() {
 function drawTileSelector() {
   for (let button of tileButtons) {
     var tile = getTile(button.type);
-    var sprite = spriter.getSprite("tilesheet");
+    var sprite = spriter.getSprite("tiles");
     ctx.drawImage(sprite.image,tile.xPos,tile.yPos,16,16,1250 + button.x,0 + button.y,25,25);
   }
 }
