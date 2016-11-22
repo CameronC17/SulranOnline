@@ -4,6 +4,21 @@ var animFrame = window.requestAnimationFrame || window.webkitRequestAnimationFra
 //tiles drawn at 62.5% of their actual size
 //draw the player at 25*43.75 (w*h)
 
+//image loading stuff
+var spriter = new Spriter();
+var images = [
+  {
+    "name" : "tilesheet",
+    "image" : "http://i.imgur.com/AFbBJVk.png",
+    "width" : 24,
+    "height" : 24,
+    "mWidth" : 128,
+    "mHeight" : 240,
+    "timing" : 0
+  }
+]
+spriter.loadSprites(images);
+
 var c = document.getElementById("canvas");
 var ctx = c.getContext("2d");
 
@@ -55,8 +70,15 @@ window.addEventListener('keyup', function(e) { Key.onKeyup(e); }, false);
 window.addEventListener('keydown', function(e) { Key.onKeydown(e); }, false);
 
 function inputMap() {
-  //editMap = JSON.parse(textarea.value);
-  editMap = map.sulran;
+  if (textarea.value == "") {
+    editMap = {
+      "ground": [["w1", "w1", "w1"], ["w1", "w1", "w1"], ["w1", "w1", "w1"]],
+      "objects": []
+    }
+  } else {
+    editMap = JSON.parse(textarea.value);
+  }
+
   document.getElementById('input').style.display = "none";
   textarea.value = "";
 }
@@ -123,22 +145,22 @@ function drawSidebar() {
 function getTile(tile) {
     switch (tile) {
         case "w1":
-            return "#ff0000";
+            return {"xPos": 0, "yPos": 0};
             break;
         case "g1":
-            return "#33ff33";
+            return {"xPos": 64, "yPos": 16};
             break;
         case "g2":
-            return "#117711";
+            return {"xPos": 16, "yPos": 128};
             break;
         case "b":
-            return "#000";
+            return {"xPos": 96, "yPos": 16};
             break;
         case "new":
-            return "#ff02fa";
+            return {"xPos": 16, "yPos": 16};
             break;
         default:
-            return "#0000ff";
+            return {"xPos": 96, "yPos": 128};
             break;
     }
 }
@@ -171,8 +193,9 @@ function drawMap() {
   for (var y = 0; y < 30; y++) {
     for (var x = 0; x < 56; x++) {
       if (x + camera.x >= 0 && y + camera.y >= 0 && x + camera.x < editMap.ground[0].length && y + camera.y < editMap.ground.length) {
-        ctx.fillStyle=getTile(editMap.ground[y + camera.y][x + camera.x]);
-        ctx.fillRect(x * 25, y * 25, 25, 25);
+        var tile = getTile(editMap.ground[y + camera.y][x + camera.x]);
+        var sprite = spriter.getSprite("tilesheet");
+        ctx.drawImage(sprite.image,tile.xPos,tile.yPos,16,16,x*25,y*25,25,25);
       } else {
         ctx.fillStyle="#000";
         ctx.fillRect(x * 25, y * 25, 25, 25);
@@ -271,8 +294,9 @@ function placeObject() {
 
 function drawTileSelector() {
   for (let button of tileButtons) {
-    ctx.fillStyle=getTile(button.type);
-    ctx.fillRect(1250 + button.x, 0 + button.y, 25, 25);
+    var tile = getTile(button.type);
+    var sprite = spriter.getSprite("tilesheet");
+    ctx.drawImage(sprite.image,tile.xPos,tile.yPos,16,16,1250 + button.x,0 + button.y,25,25);
   }
 }
 
@@ -438,7 +462,25 @@ var recursiveAnim = function() {
   checkKeys();
   animFrame(recursiveAnim);
 };
-animFrame(recursiveAnim);
+
+ctx.fillStyle="#006688";
+ctx.fillRect(0, 0, c.width, c.height);
+ctx.fillStyle="#fff";
+ctx.fillText("Loading", 300, 300);
+
+function checkLoaded() {
+  if (spriter.checkLoaded())
+    animFrame(recursiveAnim);
+  else {
+		setTimeout(function () {
+			//Recursively loop
+	      checkLoaded();
+	    }, 50);
+  }
+}
+
+//wait for images to have loaded before starting the animation
+checkLoaded();
 
 var Mouse = {
   pos: {"x": -1, "y": -1},
