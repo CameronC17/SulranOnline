@@ -224,7 +224,7 @@ function drawObjects() {
     //if the object is in sight
     if (obj.x + object.width > (camera.x * 25) && obj.x < ((camera.x + 50) * 25) && obj.y + object.height > (camera.y * 25) && obj.y < ((camera.y + 30) * 25)) {
       var sprite = spriter.getSprite("things");
-      ctx.drawImage(sprite.image,object.startX,object.startY,object.width,object.height,obj.x - (camera.x * 25),obj.y - (camera.y * 25),object.width,object.height);
+      ctx.drawImage(sprite.image,object.startX,object.startY,object.width,object.height,obj.x - (camera.x * 25),obj.y - (camera.y * 25),object.width * 0.625,object.height * 0.625);
       //ctx.fillStyle=objData.colour;
       //ctx.fillRect(obj.x - (camera.x * 25), obj.y - (camera.y * 25), objData.width, objData.height);
     }
@@ -284,7 +284,7 @@ function drawMouseHover() {
     } else {
       var object = getObject(selectedObject);
       var sprite = spriter.getSprite("things");
-      ctx.drawImage(sprite.image,object.startX,object.startY,object.width,object.height,Mouse.pos.x - object.width, Mouse.pos.y - object.height,object.width,object.height);
+      ctx.drawImage(sprite.image,object.startX,object.startY,object.width,object.height,Mouse.pos.x - object.width, Mouse.pos.y - object.height,object.width * 0.625,object.height * 0.625);
       //ctx.fillRect(Mouse.pos.x - object.width, Mouse.pos.y - object.height, object.width, object.height);
     }
     ctx.globalAlpha=1;
