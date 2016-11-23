@@ -300,11 +300,13 @@ function changeTile() {
 
 function addNewObject(newObj) {
   // if the ojbects array is empty.... else
+  var newObjDetails = getObject(newObj.object);
   if (editMap.objects.length == 0) {
     editMap.objects.push(newObj);
   } else {
     if (editMap.objects.length == 1) {
-      if (newObj.y < editMap.objects[0].y)
+      var checkObjDetails = getObject(editMap.objects[0].object);
+      if (newObj.y + newObjDetails.height < editMap.objects[0].y + checkObjDetails.height)
         editMap.objects.unshift(newObj);
       else
         editMap.objects.push(newObj);
@@ -312,13 +314,11 @@ function addNewObject(newObj) {
       var added = false;
       for (var i = 0; i < editMap.objects.length; i++) {
         var obj = editMap.objects[i];
-        if (newObj.y < obj.y) {
-          if (i == 0) {
-            editMap.objects.unshift(newObj);
-            break;
-          } else {
-            editMap.objects.splice(i, 0, newObj);
-          }
+        var checkObjAgain = getObject(obj.object);
+        if (newObj.y + newObjDetails.height < obj.y + checkObjAgain.height) {
+          editMap.objects.splice(i, 0, newObj);
+          added = true;
+          break;
         }
       }
       if (!added)
