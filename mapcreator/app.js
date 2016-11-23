@@ -50,9 +50,10 @@ var selectedObject = null;
 var tileButtons = [
   {"type": "g1", "x": 20, "y": 10},
   {"type": "g2", "x": 50, "y": 10},
-  {"type": "w1", "x": 80, "y": 10},
-  {"type": "b", "x": 110, "y": 10},
-  {"type": "new", "x": 20, "y": 40}
+  {"type": "g3", "x": 80, "y": 10},
+  {"type": "w1", "x": 110, "y": 10},
+  {"type": "b", "x": 20, "y": 40},
+  {"type": "new", "x": 50, "y": 40}
 ];
 
 var objectButtons = [
@@ -162,6 +163,9 @@ function getTile(tile) {
             break;
         case "g2":
             return {"xPos": 16, "yPos": 128};
+            break;
+        case "g3":
+            return {"xPos": 48, "yPos": 16};
             break;
         case "b":
             return {"xPos": 96, "yPos": 16};
@@ -316,8 +320,8 @@ function drawObjectSelector() {
   var currPos = { "x": 0, "y": 0 }
   for (let button of objectButtons) {
     var obj = getObject(button.object);
-    ctx.fillStyle="#222222";
-    ctx.fillRect(1270 + currPos.x, 270 + currPos.y, 25, 25);
+    //ctx.fillStyle="#222222";
+    //ctx.fillRect(1270 + currPos.x, 270 + currPos.y, 25, 25);
     var sprite = spriter.getSprite("things");
     var scale = 0;
     if (obj.width > obj.height) {
