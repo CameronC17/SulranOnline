@@ -284,7 +284,7 @@ function drawMouseHover() {
     } else {
       var object = getObject(selectedObject);
       var sprite = spriter.getSprite("things");
-      ctx.drawImage(sprite.image,object.startX,object.startY,object.width,object.height,Mouse.pos.x - object.width, Mouse.pos.y - object.height,object.width * 0.625,object.height * 0.625);
+      ctx.drawImage(sprite.image,object.startX,object.startY,object.width,object.height,Mouse.pos.x - (object.width * 0.625), Mouse.pos.y - (object.height * 0.625),object.width * 0.625,object.height * 0.625);
       //ctx.fillRect(Mouse.pos.x - object.width, Mouse.pos.y - object.height, object.width, object.height);
     }
     ctx.globalAlpha=1;
@@ -298,14 +298,43 @@ function changeTile() {
   }
 }
 
+function addNewObject(newObj) {
+  // if the ojbects array is empty.... else
+  if (editMap.objects.length == 0) {
+    editMap.objects.push(newObj);
+  } else {
+    if (editMap.objects.length == 1) {
+      if (newObj.y < editMap.objects[0].y)
+        editMap.objects.unshift(newObj);
+      else
+        editMap.objects.push(newObj);
+    } else {
+      var added = false;
+      for (var i = 0; i < editMap.objects.length; i++) {
+        var obj = editMap.objects[i];
+        if (newObj.y < obj.y) {
+          if (i == 0) {
+            editMap.objects.unshift(newObj);
+            break;
+          } else {
+            editMap.objects.splice(i, 0, newObj);
+          }
+        }
+      }
+      if (!added)
+        editMap.objects.push(newObj);
+    }
+  }
+}
+
 function placeObject() {
   var object = getObject(selectedObject);
   var objData = {
-    "x": (camera.x * 25) + Mouse.pos.x - object.width,
-    "y": (camera.y * 25) + Mouse.pos.y - object.height
+    "x": (camera.x * 25) + Mouse.pos.x - (object.width * 0.625),
+    "y": (camera.y * 25) + Mouse.pos.y - (object.height * 0.625)
   }
   if (objData.x > 0 && objData.x + object.width < editMap.ground[0].length * 25 && objData.y > 0 && objData.y + object.height < editMap.ground.length * 25)
-    editMap.objects.push({ "object" : selectedObject, "x": objData.x, "y": objData.y, "solid": object.solid });
+    addNewObject({ "object" : selectedObject, "x": objData.x, "y": objData.y, "solid": object.solid });
 }
 
 function drawTileSelector() {
