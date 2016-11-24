@@ -1,4 +1,4 @@
-var debug = true;
+var debug = false;
 
 class Sulran {
     constructor(canvas, connString) {
@@ -134,6 +134,9 @@ class Draw {
           case "w1":
               return {"xPos": 0, "yPos": 0};
               break;
+          case "w2":
+              return {"xPos": 96, "yPos": 16};
+              break;
           case "g1":
               return {"xPos": 64, "yPos": 16};
               break;
@@ -144,7 +147,7 @@ class Draw {
               return {"xPos": 48, "yPos": 16};
               break;
           case "b":
-              return {"xPos": 96, "yPos": 16};
+              return {"xPos": 96, "yPos": 32};
               break;
           case "new":
               return {"xPos": 16, "yPos": 16};
@@ -164,6 +167,15 @@ class Draw {
                 var tile = this.getTile(this.visibleMap.map[y][x]);
                 var sprite = spriter.getSprite("tiles");
                 this.ctx.drawImage(sprite.image,tile.xPos,tile.yPos,16,16,xPos,yPos,40,40);
+
+                //test stuff on tiles. remove eventually!
+                if (debug) {
+                  this.ctx.strokeStyle="#fff";
+                  this.ctx.fillStyle="#fff";
+                  this.ctx.strokeRect(xPos,yPos,40,40);
+                  this.ctx.fillText(this.visibleMap.map[y][x], xPos, yPos + 10);
+                }
+
                 xPos += 40;
             }
             xPos = -40 - (this.visibleMap.pModX);

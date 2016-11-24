@@ -53,7 +53,8 @@ var tileButtons = [
   {"type": "g3", "x": 80, "y": 10},
   {"type": "w1", "x": 110, "y": 10},
   {"type": "b", "x": 20, "y": 40},
-  {"type": "new", "x": 50, "y": 40}
+  {"type": "new", "x": 50, "y": 40},
+  {"type": "w2", "x": 80, "y": 40}
 ];
 
 var objectButtons = [
@@ -159,6 +160,9 @@ function getTile(tile) {
         case "w1":
             return {"xPos": 0, "yPos": 0};
             break;
+        case "w2":
+            return {"xPos": 96, "yPos": 16};
+            break;
         case "g1":
             return {"xPos": 64, "yPos": 16};
             break;
@@ -169,7 +173,7 @@ function getTile(tile) {
             return {"xPos": 48, "yPos": 16};
             break;
         case "b":
-            return {"xPos": 96, "yPos": 16};
+            return {"xPos": 96, "yPos": 32};
             break;
         case "new":
             return {"xPos": 16, "yPos": 16};
