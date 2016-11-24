@@ -306,7 +306,7 @@ function addNewObject(newObj) {
   } else {
     if (editMap.objects.length == 1) {
       var checkObjDetails = getObject(editMap.objects[0].object);
-      if (newObj.y + newObjDetails.height < editMap.objects[0].y + checkObjDetails.height)
+      if (newObj.y + (newObjDetails.height * 0.625) < editMap.objects[0].y + (checkObjDetails.height * 0.625))
         editMap.objects.unshift(newObj);
       else
         editMap.objects.push(newObj);
@@ -315,7 +315,7 @@ function addNewObject(newObj) {
       for (var i = 0; i < editMap.objects.length; i++) {
         var obj = editMap.objects[i];
         var checkObjAgain = getObject(obj.object);
-        if (newObj.y + newObjDetails.height < obj.y + checkObjAgain.height) {
+        if (newObj.y + (newObjDetails.height * 0.625) < obj.y + (checkObjAgain.height * 0.625)) {
           editMap.objects.splice(i, 0, newObj);
           added = true;
           break;
