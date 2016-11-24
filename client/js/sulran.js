@@ -2,8 +2,8 @@ var debug = true;
 
 class Sulran {
     constructor(canvas, connString) {
-        this.connection = new Connection(connString);
-        this.graphics = new Draw(canvas);
+        //this.connection = new Connection(connString);
+        this.graphics = new Draw(canvas, spriter);
         this.map = new Map();
         this.player = new Player(this.map);
 
@@ -75,6 +75,13 @@ class Sulran {
         }
     }
 
+    drawLoading() {
+      this.ctx.fillStyle="#22bb77";
+      this.ctx.fillRect(0, 0, this.c.width, this.c.height);
+      this.ctx.fillStyle="#fff";
+      this.ctx.fillText("Loading...", 20, 20);
+    }
+
     draw() {
         //get all necessary data
         this.graphics.visibleMap = this.map.build(this.player.position);
@@ -90,7 +97,7 @@ class Connection {
     }
 
     emit(data) {
-      this.socket.emit('boop');
+        this.socket.emit('boop');
     }
 }
 
@@ -123,20 +130,29 @@ class Draw {
     }
 
     getTile(tile) {
-        switch (tile) {
-            case "w1":
-                return "#ff0000";
-                break;
-            case "g1":
-                return "#33ff33";
-                break;
-            case "b":
-                return "#000";
-                break;
-            default:
-                return "#0000ff";
-                break;
-        }
+      switch (tile) {
+          case "w1":
+              return {"xPos": 0, "yPos": 0};
+              break;
+          case "g1":
+              return {"xPos": 64, "yPos": 16};
+              break;
+          case "g2":
+              return {"xPos": 16, "yPos": 128};
+              break;
+          case "g3":
+              return {"xPos": 48, "yPos": 16};
+              break;
+          case "b":
+              return {"xPos": 96, "yPos": 16};
+              break;
+          case "new":
+              return {"xPos": 16, "yPos": 16};
+              break;
+          default:
+              return {"xPos": 96, "yPos": 128};
+              break;
+      }
     }
 
     visibleLand() {
@@ -145,9 +161,9 @@ class Draw {
             yPos = -15 - (this.visibleMap.pModY);
         for (var y = 1; y < this.visibleMap.map.length; y++) {
             for (var x = 0; x < this.visibleMap.map[0].length; x++) {
-                var tile = this.visibleMap.map[y][x];
-                this.ctx.fillStyle = this.getTile(tile);
-                this.ctx.fillRect(xPos, yPos, 40, 40);
+                var tile = this.getTile(this.visibleMap.map[y][x]);
+                var sprite = spriter.getSprite("tiles");
+                this.ctx.drawImage(sprite.image,tile.xPos,tile.yPos,16,16,xPos,yPos,40,40);
                 xPos += 40;
             }
             xPos = -40 - (this.visibleMap.pModX);
@@ -209,10 +225,9 @@ class Map {
         }
 
         //check if left side hits anything                                        right side                                                   bottom
-        if (this.map.sulran.ground[targetPos.y][targetPos.x] != "w1" && this.map.sulran.ground[targetPos.y][targetPos.x + 1] != "w1"&& this.map.sulran.ground[targetPos.y + 1][targetPos.x] != "w1") {
-          return [currPos[0] + xMove, currPos[1] + yMove];
-        }
-        else
+        if (this.map.sulran.ground[targetPos.y][targetPos.x] != "w1" && this.map.sulran.ground[targetPos.y][targetPos.x + 1] != "w1" && this.map.sulran.ground[targetPos.y + 1][targetPos.x] != "w1") {
+            return [currPos[0] + xMove, currPos[1] + yMove];
+        } else
             return [currPos[0], currPos[1]];
     }
 

@@ -83,7 +83,8 @@ function inputMap() {
   if (textarea.value == "") {
     editMap = {
       "ground": [["w1", "w1", "w1"], ["w1", "w1", "w1"], ["w1", "w1", "w1"]],
-      "objects": []
+      "objects": [],
+      "npcs": []
     }
   } else {
     editMap = JSON.parse(textarea.value);
