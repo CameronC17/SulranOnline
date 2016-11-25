@@ -239,7 +239,7 @@ class Map {
         }
 
         //check if left side hits anything                                        right side                                                   bottom
-        if (this.map.sulran.ground[targetPos.y][targetPos.x] != "w1" && this.map.sulran.ground[targetPos.y][targetPos.x + 1] != "w1" && this.map.sulran.ground[targetPos.y + 1][targetPos.x] != "w1") {
+        if (this.map.sulran.ground[targetPos.y][targetPos.x] != "w1" && this.map.sulran.ground[targetPos.y][targetPos.x + 1] != "w1" && this.map.sulran.ground[targetPos.y + 1][targetPos.x] != "w1" && this.map.sulran.ground[targetPos.y + 1][targetPos.x + 1] != "w1") {
             return [currPos[0] + xMove, currPos[1] + yMove];
         } else
             return [currPos[0], currPos[1]];
