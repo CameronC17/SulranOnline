@@ -46,27 +46,6 @@ class Sulran {
                 return this._pressed[keyCode];
             },
             onKeydown: function(event) {
-                var movement = {
-                    "up": false,
-                    "down": false,
-                    "left": false,
-                    "right": false,
-                }
-                if (event.keyCode == 65) {
-                    movement.left = true;
-                }
-                if (event.keyCode == 68) {
-                    movement.right = true;
-                }
-                if (event.keyCode == 87) {
-                    movement.up = true;
-                }
-                if (event.keyCode == 83) {
-                    movement.down = true;
-                }
-
-                obj.player.move(movement);
-
                 this._pressed[event.keyCode] = true;
             },
             onKeyup: function(event) {
@@ -83,6 +62,10 @@ class Sulran {
     }
 
     draw() {
+      //stuff before the draw
+      this.player.move(this.Key);
+
+
         //get all necessary data
         this.graphics.visibleMap = this.map.build(this.player.position);
 
@@ -203,8 +186,27 @@ class Player {
         this.map = map;
     }
 
-    move(movement) {
-        this.position = this.map.checkMove(this.position, movement, 3);
+    move(keypress) {
+      var movement = {
+          "up": false,
+          "down": false,
+          "left": false,
+          "right": false,
+      }
+      if (keypress.isDown(keypress.LEFT)) {
+          movement.left = true;
+      }
+      if (keypress.isDown(keypress.RIGHT)) {
+          movement.right = true;
+      }
+      if (keypress.isDown(keypress.UP)) {
+          movement.up = true;
+      }
+      if (keypress.isDown(keypress.DOWN)) {
+          movement.down = true;
+      }
+
+      this.position = this.map.checkMove(this.position, movement, 3);
     }
 }
 
@@ -216,7 +218,7 @@ class Map {
     checkMove(currPos, dir, speed) {
         var userPosOnGrid = {
             "x": Math.floor(currPos[0] / 40),
-            "y": Math.floor(currPos[1] / 40)
+            "y": Math.floor(currPos[1] + 30 / 40)
         }
 
         var xMove = 0,
