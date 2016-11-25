@@ -1,4 +1,4 @@
-var debug = false;
+var debug = true;
 
 class Sulran {
     constructor(canvas, connString) {
@@ -143,8 +143,8 @@ class Draw {
 
     visibleLand() {
         // first numbers to centre the character
-        var xPos = -40 - (this.visibleMap.pModX),
-            yPos = -15 - (this.visibleMap.pModY);
+        var xPos = -20 - (this.visibleMap.pModX),
+            yPos = 10 - (this.visibleMap.pModY);
         for (var y = 1; y < this.visibleMap.map.length; y++) {
             for (var x = 0; x < this.visibleMap.map[0].length; x++) {
                 var tile = this.getTile(this.visibleMap.map[y][x]);
@@ -156,19 +156,25 @@ class Draw {
                   this.ctx.strokeStyle="#fff";
                   this.ctx.fillStyle="#fff";
                   this.ctx.strokeRect(xPos,yPos,40,40);
-                  this.ctx.fillText(this.visibleMap.map[y][x], xPos, yPos + 10);
+                  this.ctx.fillText(this.visibleMap.map[y][x], xPos + 2, yPos + 10);
                 }
 
                 xPos += 40;
             }
-            xPos = -40 - (this.visibleMap.pModX);
+            xPos = -20 - (this.visibleMap.pModX);
             yPos += 40;
         }
     }
 
     player() {
         this.ctx.fillStyle = "#ffff66";
-        this.ctx.fillRect(480, 357, 40, 70);
+        this.ctx.fillRect(485, 366, 30, 60);
+    }
+
+    debugLines() {
+      this.ctx.fillStyle="#ff66cc";
+      this.ctx.fillRect(0, 399, 1000, 2);
+      this.ctx.fillRect(499, 0, 2, 800);
     }
 
     draw() {
@@ -176,13 +182,15 @@ class Draw {
         this.visibleLand();
         this.player();
         this.UI();
+        if (debug)
+          this.debugLines();
     }
 
 }
 
 class Player {
     constructor(map) {
-        this.position = [40, 40];
+        this.position = [60, 60];
         this.map = map;
     }
 
@@ -238,8 +246,17 @@ class Map {
             "y": Math.floor((currPos[1] + yMove) / 40)
         }
 
-        //check if left side hits anything                                        right side                                                   bottom
-        if (this.map.sulran.ground[targetPos.y][targetPos.x] != "w1" && this.map.sulran.ground[targetPos.y][targetPos.x + 1] != "w1" && this.map.sulran.ground[targetPos.y + 1][targetPos.x] != "w1" && this.map.sulran.ground[targetPos.y + 1][targetPos.x + 1] != "w1") {
+        var playerBounds = {
+          "leftSide": Math.floor((currPos[0] - 15 + xMove) /40),
+          "rightSide": Math.floor((currPos[0] + 15 + xMove) /40),
+          "topSide": Math.floor((currPos[1] - 15 + yMove) /40),
+          "bottomSide": Math.floor((currPos[1] + 15 + yMove) /40)
+        }
+
+        //console.log(this.map.sulran.ground[playerBounds.bottomSide][playerBounds.leftSide] != "w1", this.map.sulran.ground[playerBounds.topSide][playerBounds.leftSide] != "w1", this.map.sulran.ground[playerBounds.bottomSide][playerBounds.rightSide] != "w1", this.map.sulran.ground[playerBounds.topSide][playerBounds.rightSide] != "w1")
+
+        //check if sides hit anything
+        if (this.map.sulran.ground[playerBounds.bottomSide][playerBounds.leftSide] != "w1" && this.map.sulran.ground[playerBounds.topSide][playerBounds.leftSide] != "w1" && this.map.sulran.ground[playerBounds.bottomSide][playerBounds.rightSide] != "w1" && this.map.sulran.ground[playerBounds.topSide][playerBounds.rightSide] != "w1") {
             return [currPos[0] + xMove, currPos[1] + yMove];
         } else
             return [currPos[0], currPos[1]];
