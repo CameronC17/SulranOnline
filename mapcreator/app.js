@@ -188,22 +188,22 @@ function getTile(tile) {
 function getObject(obj) {
   switch (obj) {
     case "tree1":
-      return { "colour": "#f2fff2", "startX": 5, "startY": 1, "width": 50, "height": 53, "solid": true };
+      return { "startX": 5, "startY": 1, "width": 50, "height": 53, "solid": true };
       break;
     case "seat1":
-      return { "colour": "#3388ff", "startX": 57, "startY": 21, "width": 30, "height": 15, "solid": true };
+      return { "startX": 57, "startY": 21, "width": 30, "height": 15, "solid": true };
       break;
     case "gate1":
-      return { "colour": "#996633", "startX": 58, "startY": 1, "width": 19, "height": 16, "solid": true };
+      return { "startX": 58, "startY": 1, "width": 19, "height": 16, "solid": true };
       break;
     case "sheep1":
-      return { "colour": "#fff", "startX": 88, "startY": 5, "width": 14, "height": 12, "solid": false };
+      return { "startX": 88, "startY": 5, "width": 14, "height": 12, "solid": false };
       break;
     case "box1":
-      return { "colour": "#ff9900", "startX": 93, "startY": 21, "width": 18, "height": 26, "solid": false };
+      return { "startX": 93, "startY": 21, "width": 18, "height": 26, "solid": false };
       break;
     default:
-      return { "colour": "#ff02fa", "startX": 250, "startY": 50, "width": 15, "height": 15, "solid": false };
+      return { "startX": 250, "startY": 50, "width": 15, "height": 15, "solid": false };
       break;
   }
 }
@@ -229,7 +229,8 @@ function drawObjects() {
     //if the object is in sight
     if (obj.x + object.width > (camera.x * 25) && obj.x < ((camera.x + 50) * 25) && obj.y + object.height > (camera.y * 25) && obj.y < ((camera.y + 30) * 25)) {
       var sprite = spriter.getSprite("things");
-      ctx.drawImage(sprite.image,object.startX,object.startY,object.width,object.height,obj.x - (camera.x * 25),obj.y - (camera.y * 25),object.width * 0.625,object.height * 0.625);
+      ctx.drawImage(sprite.image,object.startX,object.startY,object.width,object.height,(obj.x * 0.625) - (camera.x * 25),(obj.y * 0.625) - (camera.y * 25),object.width * 0.625,object.height * 0.625);
+      //ctx.drawImage(sprite.image,object.startX,object.startY,object.width,object.height,obj.x - (camera.x * 25),obj.y - (camera.y * 25),object.width * 0.625,object.height * 0.625);
       //ctx.fillStyle=objData.colour;
       //ctx.fillRect(obj.x - (camera.x * 25), obj.y - (camera.y * 25), objData.width, objData.height);
     }
@@ -335,11 +336,14 @@ function addNewObject(newObj) {
 function placeObject() {
   var object = getObject(selectedObject);
   var objData = {
-    "x": (camera.x * 25) + Mouse.pos.x - (object.width * 0.625),
-    "y": (camera.y * 25) + Mouse.pos.y - (object.height * 0.625)
+    "x": (((camera.x * 25) + Mouse.pos.x) * 1.6) - object.width,
+    "y": (((camera.y * 25) + Mouse.pos.y) * 1.6) - object.height
+    //"x": (camera.x * 25) + Mouse.pos.x - (object.width * 0.625),
+    //"y": (camera.y * 25) + Mouse.pos.y - (object.height * 0.625)
   }
-  if (objData.x > 0 && objData.x + object.width < editMap.ground[0].length * 25 && objData.y > 0 && objData.y + object.height < editMap.ground.length * 25)
+  //if (objData.x > 0 && objData.x + object.width < editMap.ground[0].length * 40 && objData.y > 0 && objData.y + object.height < editMap.ground.length * 40) {
     addNewObject({ "object" : selectedObject, "x": objData.x, "y": objData.y, "solid": object.solid });
+  //}
 }
 
 function drawTileSelector() {
@@ -382,7 +386,7 @@ function drawObjectSelector() {
 function drawPlayerScale() {
   ctx.fillStyle="#f262bb";
   ctx.globalAlpha="0.7";
-  ctx.fillRect(400, 481, 25, 43.75);
+  ctx.fillRect(400, 487, 18.75, 37.5);
   ctx.globalAlpha="1";
 }
 

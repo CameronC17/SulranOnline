@@ -141,16 +141,38 @@ class Draw {
       }
     }
 
+    getObject(obj) {
+      switch (obj) {
+        case "tree1":
+          return { "startX": 5, "startY": 1, "width": 50, "height": 53, "solid": true };
+          break;
+        case "seat1":
+          return { "startX": 57, "startY": 21, "width": 30, "height": 15, "solid": true };
+          break;
+        case "gate1":
+          return { "startX": 58, "startY": 1, "width": 19, "height": 16, "solid": true };
+          break;
+        case "sheep1":
+          return { "startX": 88, "startY": 5, "width": 14, "height": 12, "solid": false };
+          break;
+        case "box1":
+          return { "startX": 93, "startY": 21, "width": 18, "height": 26, "solid": false };
+          break;
+        default:
+          return { "startX": 250, "startY": 50, "width": 15, "height": 15, "solid": false };
+          break;
+      }
+    }
+
     visibleLand() {
         // first numbers to centre the character
+        var sprite = spriter.getSprite("tiles");
         var xPos = -20 - (this.visibleMap.pModX),
             yPos = -30 - (this.visibleMap.pModY);
         for (var y = 1; y < this.visibleMap.map.length; y++) {
             for (var x = 0; x < this.visibleMap.map[0].length; x++) {
                 var tile = this.getTile(this.visibleMap.map[y][x]);
-                var sprite = spriter.getSprite("tiles");
                 this.ctx.drawImage(sprite.image,tile.xPos,tile.yPos,16,16,xPos,yPos,40,40);
-
                 //test stuff on tiles. remove eventually!
                 if (debug) {
                   this.ctx.strokeStyle="#fff";
@@ -158,11 +180,23 @@ class Draw {
                   this.ctx.strokeRect(xPos,yPos,40,40);
                   this.ctx.fillText(this.visibleMap.map[y][x], xPos + 2, yPos + 10);
                 }
-
                 xPos += 40;
             }
             xPos = -20 - (this.visibleMap.pModX);
             yPos += 40;
+        }
+
+        //draws the objects
+        //console.log(this.visibleMap.objs.length);
+        var things = spriter.getSprite("things");
+        for (let object of this.visibleMap.objs) {
+          var objPos = {
+            "x": 500 + (object.x - this.visibleMap.pX),
+            "y": 410 + (object.y - this.visibleMap.pY)
+          }
+          //console.log(object.x, object.y)
+          var thing = this.getObject(object.object)
+          this.ctx.drawImage(things.image,thing.startX,thing.startY,thing.width,thing.height,objPos.x,objPos.y,thing.width,thing.height);
         }
     }
 
@@ -214,6 +248,7 @@ class Player {
           movement.down = true;
       }
 
+      //                                                 speed    \/
       this.position = this.map.checkMove(this.position, movement, 3);
     }
 }
@@ -285,10 +320,13 @@ class Map {
 
     build(playerPos) {
         var rtnMap = [];
+        var rtnObjs = [];
         var userPosOnGrid = {
             "x": Math.floor(playerPos[0] / 40),
             "y": Math.floor(playerPos[1] / 40)
         }
+
+        //builds the map tiles
         for (var y = userPosOnGrid.y - 12; y < userPosOnGrid.y + 13; y++) {
             var row = [];
             for (var x = userPosOnGrid.x - 13; x < userPosOnGrid.x + 14; x++) {
@@ -302,8 +340,20 @@ class Map {
             }
             rtnMap.push(row);
         }
+
+        //builds the objects on the map
+        for (let object of map.sulran.objects) {
+          //console.log(object.x, playerPos[0] - 500, object.x, playerPos[0] + 500, object.y, playerPos[1] - 400, object.y, playerPos[1] + 400)
+          if (object.x > playerPos[0] - 800 && object.x < playerPos[0] + 800 && object.y > playerPos[1] - 800 && object.y < playerPos[1] + 800) {
+            rtnObjs.push(object);
+          }
+        }
+
         var graphics = {
             "map": rtnMap,
+            "objs": rtnObjs,
+            "pX": playerPos[0],
+            "pY": playerPos[1],
             "pModX": playerPos[0] % 40,
             "pModY": playerPos[1] % 40
         }
