@@ -227,7 +227,8 @@ function drawObjects() {
   for (let obj of editMap.objects) {
     var object = getObject(obj.object);
     //if the object is in sight
-    if (obj.x + object.width > (camera.x * 25) && obj.x < ((camera.x + 50) * 25) && obj.y + object.height > (camera.y * 25) && obj.y < ((camera.y + 30) * 25)) {
+    //if (obj.x + object.width > (camera.x * 25) && obj.x < ((camera.x + 50) * 25) && obj.y + object.height > (camera.y * 25) && obj.y < ((camera.y + 30) * 25)) {
+    if (obj.x + object.width > (camera.x * 25) - 100 && obj.x < ((camera.x + 50) * 25) + 100 && obj.y + object.height > (camera.y * 25) - 100 && obj.y < ((camera.y + 50) * 25) + 100) {
       var sprite = spriter.getSprite("things");
       ctx.drawImage(sprite.image,object.startX,object.startY,object.width,object.height,(obj.x * 0.625) - (camera.x * 25),(obj.y * 0.625) - (camera.y * 25),object.width * 0.625,object.height * 0.625);
       //ctx.drawImage(sprite.image,object.startX,object.startY,object.width,object.height,obj.x - (camera.x * 25),obj.y - (camera.y * 25),object.width * 0.625,object.height * 0.625);
