@@ -21,6 +21,22 @@ var images = [
     "mWidth" : 816,
     "mHeight" : 208,
     "timing" : 0
+  },
+  {
+    "name" : "character",
+    "image" : "http://i.imgur.com/rAIo1tj.png",
+    "width" : 60,
+    "height" : 65,
+    "mWidth" : 600,
+    "mHeight" : 520,
+    "timing" : 300,
+    "multisheet": [
+      {"name": "idle", "yPos": 0, "slides": 9, "timing": 300},
+      {"name": "moveDown", "yPos": 260, "slides": 10, "timing": 100},
+      {"name": "moveUp", "yPos": 390, "slides": 10, "timing": 100},
+      {"name": "moveLeft", "yPos": 325, "slides": 10, "timing": 100},
+      {"name": "moveRight", "yPos": 455, "slides": 10, "timing": 100}
+    ]
   }
 ]
 spriter.loadSprites(images);
@@ -38,8 +54,10 @@ var recursiveAnim = function() {
 }
 
 function checkLoaded() {
-  if (spriter.checkLoaded())
+  if (spriter.checkLoaded()) {
+    game.loaded();
     animFrame(recursiveAnim);
+  }
   else {
     game.drawLoading();
 		setTimeout(function () {

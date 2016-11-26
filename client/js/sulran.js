@@ -1,4 +1,4 @@
-var debug = true;
+var debug = false;
 
 class Sulran {
     constructor(canvas, connString) {
@@ -34,7 +34,6 @@ class Sulran {
     }
 
     createKey() {
-        var obj = this;
         return {
             //http://www.cambiaresearch.com/articles/15/javascript-char-codes-key-codes
             _pressed: {},
@@ -42,8 +41,29 @@ class Sulran {
             UP: 87,
             RIGHT: 68,
             DOWN: 83,
+            checkMovement: function() {
+              if (this._pressed[this.LEFT] && !this._pressed[this.RIGHT])
+                spriter.changeAnimation("character", "moveLeft");
+              else if (this._pressed[this.RIGHT] && !this._pressed[this.LEFT])
+              spriter.changeAnimation("character", "moveRight");
+
+              if (this._pressed[this.UP] && !this._pressed[this.DOWN])
+                spriter.changeAnimation("character", "moveUp");
+              else if (this._pressed[this.DOWN] && !this._pressed[this.UP])
+              spriter.changeAnimation("character", "moveDown");
+
+
+            },
+            isEmpty: function() {
+              return !(this._pressed[this.LEFT] || this._pressed[this.UP] || this._pressed[this.RIGHT] || this._pressed[this.DOWN]);
+            },
             isDown: function(keyCode) {
-                return this._pressed[keyCode];
+              if (this.isEmpty())
+                spriter.changeAnimation("character", "idle");
+              else
+                this.checkMovement();
+
+              return this._pressed[keyCode];
             },
             onKeydown: function(event) {
                 this._pressed[event.keyCode] = true;
@@ -52,6 +72,10 @@ class Sulran {
                 delete this._pressed[event.keyCode];
             }
         }
+    }
+
+    loaded() {
+      spriter.animate("character", true);
     }
 
     drawLoading() {
@@ -195,14 +219,17 @@ class Draw {
             "y": 410 + (object.y - this.visibleMap.pY)
           }
           //console.log(object.x, object.y)
-          var thing = this.getObject(object.object)
+          var thing = this.getObject(object.object);
           this.ctx.drawImage(things.image,thing.startX,thing.startY,thing.width,thing.height,objPos.x,objPos.y,thing.width,thing.height);
         }
     }
 
     player() {
-        this.ctx.fillStyle = "#ffff66";
-        this.ctx.fillRect(485, 366, 30, 60);
+        //this.ctx.fillStyle = "#ffff66";
+        //this.ctx.fillRect(485, 366, 30, 60);
+        //keep the character 30 x 60 and put him in the position above!!!!
+        var playerSprite = spriter.getSprite("character");
+        this.ctx.drawImage(playerSprite.image,playerSprite.x,playerSprite.y, playerSprite.width, playerSprite.height, 480, 364, 40, 60);
     }
 
     debugLines() {
@@ -226,6 +253,7 @@ class Player {
     constructor(map) {
         this.position = [60, 60];
         this.map = map;
+        spriter.animate("character", true)
     }
 
     move(keypress) {
