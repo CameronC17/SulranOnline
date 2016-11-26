@@ -1,0 +1,8 @@
+CLIENT
+
+
+SERVER
+
+
+MAP CREATOR
+use space bar + click to remove object

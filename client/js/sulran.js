@@ -3,7 +3,7 @@ var debug = false;
 class Sulran {
     constructor(canvas, connString) {
         //this.connection = new Connection(connString);
-        this.graphics = new Draw(canvas, spriter);
+        this.graphics = new Draw(canvas, this);
         this.map = new Map();
         this.player = new Player(this.map);
 
@@ -109,9 +109,11 @@ class Connection {
 }
 
 class Draw {
-    constructor(canvas) {
+    constructor(canvas, game) {
         this.c = document.getElementById(canvas);
         this.ctx = this.c.getContext("2d");
+
+        this.game = game;
 
         this.visibleMap = {};
     }
@@ -211,17 +213,30 @@ class Draw {
         }
 
         //draws the objects
+        var lastPosition = -10;
         //console.log(this.visibleMap.objs.length);
         var things = spriter.getSprite("things");
         for (let object of this.visibleMap.objs) {
+          var thing = this.getObject(object.object);
+          //check when to draw the player
+          if (this.game.player.position[1] > lastPosition && this.game.player.position[1] + 15 < object.y + thing.height && lastPosition != null) {
+            this.player();
+            lastPosition = null;
+          }
+          else if (lastPosition != null)
+            lastPosition = object.y + thing.height;
+
+          //now draw the actual object
           var objPos = {
             "x": 500 + (object.x - this.visibleMap.pX),
             "y": 410 + (object.y - this.visibleMap.pY)
           }
-          //console.log(object.x, object.y)
-          var thing = this.getObject(object.object);
+
           this.ctx.drawImage(things.image,thing.startX,thing.startY,thing.width,thing.height,objPos.x,objPos.y,thing.width,thing.height);
         }
+        //if we have gone through all of the objects and still not drawn the player
+        if (lastPosition != null)
+          this.player();
     }
 
     player() {
@@ -241,7 +256,7 @@ class Draw {
     draw() {
         this.clearScreen();
         this.visibleLand();
-        this.player();
+        //this.player();
         this.UI();
         if (debug)
           this.debugLines();
