@@ -89,12 +89,11 @@ class Sulran {
       //stuff before the draw
       this.player.move(this.Key);
 
+      //get all necessary data
+      this.graphics.visibleMap = this.map.build(this.player.position);
 
-        //get all necessary data
-        this.graphics.visibleMap = this.map.build(this.player.position);
-
-        //draw
-        this.graphics.draw();
+      //draw
+      this.graphics.draw();
     }
 }
 
@@ -217,14 +216,14 @@ class Draw {
         //console.log(this.visibleMap.objs.length);
         var things = spriter.getSprite("things");
         for (let object of this.visibleMap.objs) {
-          var thing = this.getObject(object.object);
+          var obj = this.getObject(object.object);
           //check when to draw the player
-          if (this.game.player.position[1] > lastPosition && this.game.player.position[1] + 15 < object.y + thing.height && lastPosition != null) {
+          if (this.game.player.position[1] + 15 > lastPosition && this.game.player.position[1] + 15 <= object.y + obj.height && lastPosition != null) {
             this.player();
             lastPosition = null;
           }
           else if (lastPosition != null)
-            lastPosition = object.y + thing.height;
+            lastPosition = object.y + obj.height;
 
           //now draw the actual object
           var objPos = {
@@ -232,11 +231,13 @@ class Draw {
             "y": 410 + (object.y - this.visibleMap.pY)
           }
 
-          this.ctx.drawImage(things.image,thing.startX,thing.startY,thing.width,thing.height,objPos.x,objPos.y,thing.width,thing.height);
+          this.ctx.drawImage(things.image,obj.startX,obj.startY,obj.width,obj.height,objPos.x,objPos.y,obj.width,obj.height);
         }
         //if we have gone through all of the objects and still not drawn the player
-        if (lastPosition != null)
+        if (lastPosition != null) {
           this.player();
+          console.log("player is on top");
+        }
     }
 
     player() {

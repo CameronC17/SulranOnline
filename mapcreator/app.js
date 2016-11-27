@@ -228,7 +228,7 @@ function drawObjects() {
     var object = getObject(obj.object);
     //if the object is in sight
     //if (obj.x + object.width > (camera.x * 25) && obj.x < ((camera.x + 50) * 25) && obj.y + object.height > (camera.y * 25) && obj.y < ((camera.y + 30) * 25)) {
-    if (obj.x + object.width > (camera.x * 25) - 100 && obj.x < ((camera.x + 60) * 25) + 100 && obj.y + object.height > (camera.y * 25) - 100 && obj.y < ((camera.y + 60) * 25) + 100) {
+    if (obj.x + object.width > (camera.x * 25) - 100 && obj.x < ((camera.x + 60) * 25) + 200 && obj.y + object.height > (camera.y * 25) - 100 && obj.y < ((camera.y + 60) * 25) + 100) {
       var sprite = spriter.getSprite("things");
       ctx.drawImage(sprite.image,object.startX,object.startY,object.width,object.height,(obj.x * 0.625) - (camera.x * 25),(obj.y * 0.625) - (camera.y * 25),object.width * 0.625,object.height * 0.625);
       //ctx.drawImage(sprite.image,object.startX,object.startY,object.width,object.height,obj.x - (camera.x * 25),obj.y - (camera.y * 25),object.width * 0.625,object.height * 0.625);
@@ -342,9 +342,9 @@ function placeObject() {
     //"x": (camera.x * 25) + Mouse.pos.x - (object.width * 0.625),
     //"y": (camera.y * 25) + Mouse.pos.y - (object.height * 0.625)
   }
-  //if (objData.x > 0 && objData.x + object.width < editMap.ground[0].length * 40 && objData.y > 0 && objData.y + object.height < editMap.ground.length * 40) {
+  if (objData.x > 0 && objData.x + object.width < editMap.ground[0].length * 40 && objData.y > 0 && objData.y + object.height < editMap.ground.length * 40) {
     addNewObject({ "object" : selectedObject, "x": objData.x, "y": objData.y, "solid": object.solid });
-  //}
+  }
 }
 
 function drawTileSelector() {
@@ -556,24 +556,26 @@ var Mouse = {
       }
   },
   mouseDown: function() {
-    this.down = true;
-    //if we have a map loaded
-    if (editMap != null) {
-      //if the click isnt in the sidebar
-      if (this.pos.x < 1250) {
-        if (selectedObject == null)
-          changeTile();
-        else
-          placeObject();
-      }
-      else {
-        //if were at the top or bottom of the sidebar
-        if (this.pos.y < 260) {
-          tileSelector();
-        } else if (this.pos.y < 470) {
-          objectSelector();
-        } else
-          sizeChanger();
+    if (this.pos.x > 0 && this.pos.x < 1401 && this.pos.y > 0 && this.pos.y < 751) {
+      this.down = true;
+      //if we have a map loaded
+      if (editMap != null) {
+        //if the click isnt in the sidebar
+        if (this.pos.x < 1250) {
+          if (selectedObject == null)
+            changeTile();
+          else
+            placeObject();
+        }
+        else {
+          //if were at the top or bottom of the sidebar
+          if (this.pos.y < 260) {
+            tileSelector();
+          } else if (this.pos.y < 470) {
+            objectSelector();
+          } else
+            sizeChanger();
+        }
       }
     }
   },
