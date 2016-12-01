@@ -343,7 +343,7 @@ function placeObject() {
     //"y": (camera.y * 25) + Mouse.pos.y - (object.height * 0.625)
   }
   if (objData.x > 0 && objData.x + object.width < editMap.ground[0].length * 40 && objData.y > 0 && objData.y + object.height < editMap.ground.length * 40) {
-    addNewObject({ "object" : selectedObject, "x": objData.x, "y": objData.y, "solid": object.solid });
+    addNewObject({ "object" : selectedObject, "x": objData.x, "y": objData.y });
   }
 }
 

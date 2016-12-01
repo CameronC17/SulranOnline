@@ -1,4 +1,4 @@
-var debug = false;
+var debug = true;
 
 class Sulran {
     constructor(canvas, connString) {
@@ -169,7 +169,7 @@ class Draw {
     getObject(obj) {
       switch (obj) {
         case "tree1":
-          return { "startX": 5, "startY": 1, "width": 50, "height": 53, "solid": true };
+          return { "startX": 5, "startY": 1, "width": 50, "height": 53, "solid": true, "solidStartX": 20, "solidStartY": 45, "solidWidth": 10, "solidHeight": 10 };
           break;
         case "seat1":
           return { "startX": 57, "startY": 21, "width": 30, "height": 15, "solid": true };
@@ -232,11 +232,17 @@ class Draw {
           }
 
           this.ctx.drawImage(things.image,obj.startX,obj.startY,obj.width,obj.height,objPos.x,objPos.y,obj.width,obj.height);
+
+          if (debug) {
+            if (obj.solid) {
+              this.ctx.fillStyle="#0000bb";
+              this.ctx.fillRect(object.x + obj.solidStartX  - this.visibleMap.pX + 500, object.y + obj.solidStartY  - this.visibleMap.pY + 410, obj.solidWidth, obj.solidHeight);
+            }
+          }
         }
         //if we have gone through all of the objects and still not drawn the player
         if (lastPosition != null) {
           this.player();
-          console.log("player is on top");
         }
     }
 
@@ -246,6 +252,14 @@ class Draw {
         //keep the character 30 x 60 and put him in the position above!!!!
         var playerSprite = spriter.getSprite("character");
         this.ctx.drawImage(playerSprite.image,playerSprite.x,playerSprite.y, playerSprite.width, playerSprite.height, 480, 364, 40, 60);
+
+        if (debug) {
+          this.ctx.globalAlpha=0.7;
+          //solid bit
+          this.ctx.fillStyle="#ff00ff";
+          this.ctx.fillRect(483, 393, 35, 35);
+          this.ctx.globalAlpha=1;
+        }
     }
 
     debugLines() {
@@ -269,7 +283,6 @@ class Player {
     constructor(map) {
         this.position = [60, 60];
         this.map = map;
-        spriter.animate("character", true)
     }
 
     move(keypress) {
@@ -293,7 +306,7 @@ class Player {
       }
 
       //                                                 speed    \/
-      this.position = this.map.checkMove(this.position, movement, 3);
+      this.position = this.map.checkMoveTiles(this.position, movement, 3);
     }
 }
 
@@ -302,7 +315,30 @@ class Map {
         this.map = map;
     }
 
-    checkMove(currPos, dir, speed) {
+    getObject(obj) {
+      switch (obj) {
+        case "tree1":
+          return { "startX": 5, "startY": 1, "width": 50, "height": 53, "solid": true, "solidStartX": 20, "solidStartY": 45, "solidWidth": 10, "solidHeight": 10 };
+          break;
+        case "seat1":
+          return { "startX": 57, "startY": 21, "width": 30, "height": 15, "solid": true };
+          break;
+        case "gate1":
+          return { "startX": 58, "startY": 1, "width": 19, "height": 16, "solid": true };
+          break;
+        case "sheep1":
+          return { "startX": 88, "startY": 5, "width": 14, "height": 12, "solid": false };
+          break;
+        case "box1":
+          return { "startX": 93, "startY": 21, "width": 18, "height": 26, "solid": false };
+          break;
+        default:
+          return { "startX": 250, "startY": 50, "width": 15, "height": 15, "solid": false };
+          break;
+      }
+    }
+
+    checkMoveTiles(currPos, dir, speed) {
         var userPosOnGrid = {
             "x": Math.floor(currPos[0] / 40),
             "y": Math.floor(currPos[1] + 30 / 40)
@@ -359,7 +395,33 @@ class Map {
           }
         }
 
-        return [retPos.x, retPos.y];
+        //return [retPos.x, retPos.y];
+        return this.checkMoveObjects(retPos, currPos);
+    }
+
+
+    checkMoveObjects(attemptPos, oldPos) {
+        var playerBounds = {
+          "leftSide": (attemptPos.x - 15),
+          "rightSide": (attemptPos.x + 15),
+          "topSide": (attemptPos.y - 15),
+          "bottomSide": (attemptPos.y + 15)
+        }
+
+        var hitObject = false;
+        for (let object of this.map.sulran.objects) {
+            let obj = this.getObject(object.object);
+
+            if ((playerBounds.rightSide > object.x + obj.solidStartX) && (playerBounds.leftSide < object.x + obj.solidStartX + obj.solidWidth) && (playerBounds.bottomSide > object.y + obj.solidStartY) && (playerBounds.topSide < object.y + obj.solidStartY + obj.solidHeight)) {
+                hitObject = true;
+            }
+        }
+
+        if (hitObject)
+            return oldPos;
+        else
+            return [attemptPos.x, attemptPos.y];
+
     }
 
     build(playerPos) {
@@ -387,7 +449,6 @@ class Map {
 
         //builds the objects on the map
         for (let object of map.sulran.objects) {
-          //console.log(object.x, playerPos[0] - 500, object.x, playerPos[0] + 500, object.y, playerPos[1] - 400, object.y, playerPos[1] + 400)
           if (object.x > playerPos[0] - 800 && object.x < playerPos[0] + 800 && object.y > playerPos[1] - 800 && object.y < playerPos[1] + 800) {
             rtnObjs.push(object);
           }
