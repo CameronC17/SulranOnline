@@ -1,4 +1,27 @@
-var debug = true;
+var debug = false;
+
+function getObject(obj) {
+  switch (obj) {
+    case "tree1":
+      return { "startX": 5, "startY": 1, "width": 50, "height": 53, "solid": true, "solidStartX": 20, "solidStartY": 45, "solidWidth": 10, "solidHeight": 10 };
+      break;
+    case "seat1":
+      return { "startX": 57, "startY": 21, "width": 30, "height": 15, "solid": true, "solidStartX": 0, "solidStartY": 0, "solidWidth": 30, "solidHeight": 1 };
+      break;
+    case "gate1":
+      return { "startX": 58, "startY": 1, "width": 19, "height": 16, "solid": true, "solidStartX": 5, "solidStartY": 6, "solidWidth": 10, "solidHeight": 10 };
+      break;
+    case "sheep1":
+      return { "startX": 88, "startY": 5, "width": 14, "height": 12, "solid": true, "solidStartX": 2, "solidStartY": 1, "solidWidth": 10, "solidHeight": 6 };
+      break;
+    case "box1":
+      return { "startX": 93, "startY": 21, "width": 18, "height": 26, "solid": true, "solidStartX": 0, "solidStartY": 14, "solidWidth": 18, "solidHeight": 8 };
+      break;
+    default:
+      return { "startX": 250, "startY": 50, "width": 15, "height": 15, "solid": false };
+      break;
+  }
+}
 
 class Sulran {
     constructor(canvas, connString) {
@@ -166,29 +189,6 @@ class Draw {
       }
     }
 
-    getObject(obj) {
-      switch (obj) {
-        case "tree1":
-          return { "startX": 5, "startY": 1, "width": 50, "height": 53, "solid": true, "solidStartX": 20, "solidStartY": 45, "solidWidth": 10, "solidHeight": 10 };
-          break;
-        case "seat1":
-          return { "startX": 57, "startY": 21, "width": 30, "height": 15, "solid": true };
-          break;
-        case "gate1":
-          return { "startX": 58, "startY": 1, "width": 19, "height": 16, "solid": true };
-          break;
-        case "sheep1":
-          return { "startX": 88, "startY": 5, "width": 14, "height": 12, "solid": false };
-          break;
-        case "box1":
-          return { "startX": 93, "startY": 21, "width": 18, "height": 26, "solid": false };
-          break;
-        default:
-          return { "startX": 250, "startY": 50, "width": 15, "height": 15, "solid": false };
-          break;
-      }
-    }
-
     visibleLand() {
         // first numbers to centre the character
         var sprite = spriter.getSprite("tiles");
@@ -216,7 +216,7 @@ class Draw {
         //console.log(this.visibleMap.objs.length);
         var things = spriter.getSprite("things");
         for (let object of this.visibleMap.objs) {
-          var obj = this.getObject(object.object);
+          var obj = getObject(object.object);
           //check when to draw the player
           if (this.game.player.position[1] + 15 > lastPosition && this.game.player.position[1] + 15 <= object.y + obj.height && lastPosition != null) {
             this.player();
@@ -315,29 +315,6 @@ class Map {
         this.map = map;
     }
 
-    getObject(obj) {
-      switch (obj) {
-        case "tree1":
-          return { "startX": 5, "startY": 1, "width": 50, "height": 53, "solid": true, "solidStartX": 20, "solidStartY": 45, "solidWidth": 10, "solidHeight": 10 };
-          break;
-        case "seat1":
-          return { "startX": 57, "startY": 21, "width": 30, "height": 15, "solid": true };
-          break;
-        case "gate1":
-          return { "startX": 58, "startY": 1, "width": 19, "height": 16, "solid": true };
-          break;
-        case "sheep1":
-          return { "startX": 88, "startY": 5, "width": 14, "height": 12, "solid": false };
-          break;
-        case "box1":
-          return { "startX": 93, "startY": 21, "width": 18, "height": 26, "solid": false };
-          break;
-        default:
-          return { "startX": 250, "startY": 50, "width": 15, "height": 15, "solid": false };
-          break;
-      }
-    }
-
     checkMoveTiles(currPos, dir, speed) {
         var userPosOnGrid = {
             "x": Math.floor(currPos[0] / 40),
@@ -372,55 +349,78 @@ class Map {
 
         var retPos = {
           "x": currPos[0],
-          "y": currPos[1]
+          "y": currPos[1],
+          "moved": false
         }
 
+        //add the else within each if to return the closest position if movement too large
         if (yMove > 0) {
           if (this.map.sulran.ground[playerBounds.bottomSide][playerPos.xLeft] != "w1" && this.map.sulran.ground[playerBounds.bottomSide][playerPos.xRight] != "w1") {
             retPos.y += yMove;
+            retPos.moved = true;
           }
         } else {
           if (this.map.sulran.ground[playerBounds.topSide][playerPos.xLeft] != "w1" && this.map.sulran.ground[playerBounds.topSide][playerPos.xRight] != "w1") {
             retPos.y += yMove;
+            retPos.moved = true;
           }
         }
 
         if (xMove > 0) {
           if (this.map.sulran.ground[playerPos.yUp][playerBounds.rightSide] != "w1" && this.map.sulran.ground[playerPos.yDown][playerBounds.rightSide] != "w1") {
             retPos.x += xMove;
+            retPos.moved = true;
           }
         } else {
           if (this.map.sulran.ground[playerPos.yUp][playerBounds.leftSide] != "w1" && this.map.sulran.ground[playerPos.yDown][playerBounds.leftSide] != "w1") {
             retPos.x += xMove;
+            retPos.moved = true;
           }
         }
 
-        //return [retPos.x, retPos.y];
-        return this.checkMoveObjects(retPos, currPos);
+        if (retPos.moved) {
+            return this.checkMoveObjects(currPos, {"x": xMove, "y": yMove}, retPos);
+        } else {
+            return [retPos.x, retPos.y];
+        }
     }
 
 
-    checkMoveObjects(attemptPos, oldPos) {
+    checkMoveObjects(currPos, velocity, noObjPos) {
         var playerBounds = {
-          "leftSide": (attemptPos.x - 15),
-          "rightSide": (attemptPos.x + 15),
-          "topSide": (attemptPos.y - 15),
-          "bottomSide": (attemptPos.y + 15)
+          "leftSide": (currPos[0] - 15 + velocity.x),
+          "rightSide": (currPos[0] + 15 + velocity.x),
+          "topSide": (currPos[1] - 15 + velocity.y),
+          "bottomSide": (currPos[1] + 15 + velocity.y)
         }
 
-        var hitObject = false;
+        var hitObject = { x: false, y: false };
         for (let object of this.map.sulran.objects) {
-            let obj = this.getObject(object.object);
-
-            if ((playerBounds.rightSide > object.x + obj.solidStartX) && (playerBounds.leftSide < object.x + obj.solidStartX + obj.solidWidth) && (playerBounds.bottomSide > object.y + obj.solidStartY) && (playerBounds.topSide < object.y + obj.solidStartY + obj.solidHeight)) {
-                hitObject = true;
+            let obj = getObject(object.object);
+            if (obj.solid) {
+                if ((playerBounds.rightSide > object.x + obj.solidStartX) && (playerBounds.leftSide < object.x + obj.solidStartX + obj.solidWidth) && (playerBounds.bottomSide - velocity.y > object.y + obj.solidStartY) && (playerBounds.topSide - velocity.y < object.y + obj.solidStartY + obj.solidHeight)) {
+                    hitObject.x = true;
+                }
+                if ((playerBounds.bottomSide > object.y + obj.solidStartY) && (playerBounds.topSide < object.y + obj.solidStartY + obj.solidHeight) && (playerBounds.rightSide - velocity.x > object.x + obj.solidStartX) && (playerBounds.leftSide - velocity.x < object.x + obj.solidStartX + obj.solidWidth)) {
+                    hitObject.y = true;
+                }
             }
         }
 
-        if (hitObject)
-            return oldPos;
-        else
-            return [attemptPos.x, attemptPos.y];
+        if (!hitObject.x && !hitObject.y)
+            return [noObjPos.x, noObjPos.y];
+
+        if (!hitObject.x)
+            currPos[0] += velocity.x;
+        if (!hitObject.y)
+            currPos[1] += velocity.y;
+
+        return currPos;
+
+        // if (hitObject)
+        //     return oldPos;
+        // else
+        //     return [attemptPos.x, attemptPos.y];
 
     }
 
