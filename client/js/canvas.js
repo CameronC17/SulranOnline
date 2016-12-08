@@ -49,7 +49,7 @@ window.addEventListener('keyup', function(e) { game.Key.onKeyup(e); }, false);
 window.addEventListener('keydown', function(e) { game.Key.onKeydown(e); }, false);
 
 var recursiveAnim = function() {
-  game.draw();
+  game.engine();
   animFrame(recursiveAnim);
 }
 

@@ -108,7 +108,7 @@ class Sulran {
       this.ctx.fillText("Loading...", 20, 20);
     }
 
-    draw() {
+    engine() {
       //stuff before the draw
       this.player.move(this.Key);
 
@@ -155,7 +155,26 @@ class Draw {
         this.ctx.fillRect(0, 800, 1200, 200);
     }
 
+    spells() {
+        var xPos = 350;
+        for (var i = 0; i < 6; i++) {
+            //background
+            this.ctx.fillStyle = "#343434";
+            this.ctx.fillRect(xPos, 730, 50, 50);
+            this.ctx.fillStyle = "#595959";
+            this.ctx.fillRect(xPos + 5, 735, 40, 40);
+
+
+            //text
+            this.ctx.fillStyle = "#fff";
+            this.ctx.fillText(i + 1, xPos + 22, 777);
+
+            xPos += 60;
+        }
+    }
+
     UI() {
+        this.spells();
         this.sidebar();
         this.chat();
     }
@@ -190,6 +209,7 @@ class Draw {
     }
 
     visibleLand() {
+        // TILES
         // first numbers to centre the character
         var sprite = spriter.getSprite("tiles");
         var xPos = -20 - (this.visibleMap.pModX),
@@ -211,7 +231,7 @@ class Draw {
             yPos += 40;
         }
 
-        //draws the objects
+        // OBJECTS
         var lastPosition = -10;
         //console.log(this.visibleMap.objs.length);
         var things = spriter.getSprite("things");
@@ -271,8 +291,8 @@ class Draw {
     draw() {
         this.clearScreen();
         this.visibleLand();
-        //this.player();
         this.UI();
+
         if (debug)
           this.debugLines();
     }
