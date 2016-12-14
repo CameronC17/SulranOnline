@@ -26,9 +26,9 @@ function getObject(obj) {
 class Sulran {
     constructor(canvas, connString) {
         //this.connection = new Connection(connString);
-        this.graphics = new Draw(canvas, this);
         this.map = new Map();
         this.player = new Player(this.map);
+        this.graphics = new Draw(canvas, this, this.player);
 
         this.c = document.getElementById(canvas);
         this.ctx = this.c.getContext("2d");
@@ -45,7 +45,8 @@ class Sulran {
 
     mouseEvent(e, type) {
         var pos = this.getMousePos(e);
-        this.mouse[[type]] = [pos.x, pos.y];
+        if (pos.x > 0 && pos.x < this.c.width && pos.y > 0 && pos.y < this.c.height)
+            this.mouse[type] = [pos.x, pos.y];
     }
 
     getMousePos(evt) {
@@ -108,15 +109,42 @@ class Sulran {
       this.ctx.fillText("Loading...", 20, 20);
     }
 
+    checkMouseCommand() {
+        if (this.mouse.down[0] > -1 && this.mouse.down[1] > -1) {
+            if (this.mouse.down[0] < 1000 && this.mouse.down[1] < 800) {
+                console.log("game screen");
+            } else if (this.mouse.down[0] >= 1000 && this.mouse.down[1] < 800) {
+                console.log("side bar");
+            } else if (this.mouse.down[1] >= 800) {
+                console.log("chat");
+            }
+            this.mouse.down = [-1, -1];
+        }
+    }
+
     engine() {
       //stuff before the draw
       this.player.move(this.Key);
+      this.checkMouseCommand();
 
       //get all necessary data
       this.graphics.visibleMap = this.map.build(this.player.position);
 
       //draw
       this.graphics.draw();
+    }
+}
+
+class Weapon {
+    constructor(type){
+        this.name = "Pistol";
+        this.image = "google.com";
+        this.damage = 5;
+        this.distance = 200;
+        this.fireSpeed = 50;
+        this.reloadSpeed = 200;
+        this.currAmmo = 12;
+        this.maxAmmo = 36;
     }
 }
 
@@ -131,11 +159,12 @@ class Connection {
 }
 
 class Draw {
-    constructor(canvas, game) {
+    constructor(canvas, game, player) {
         this.c = document.getElementById(canvas);
         this.ctx = this.c.getContext("2d");
 
         this.game = game;
+        this.player = player;
 
         this.visibleMap = {};
     }
@@ -155,8 +184,9 @@ class Draw {
         this.ctx.fillRect(0, 800, 1200, 200);
     }
 
-    spells() {
+    spellbar() {
         var xPos = 350;
+        this.ctx.font = "12px Arial";
         for (var i = 0; i < 6; i++) {
             //background
             this.ctx.fillStyle = "#343434";
@@ -164,6 +194,9 @@ class Draw {
             this.ctx.fillStyle = "#595959";
             this.ctx.fillRect(xPos + 5, 735, 40, 40);
 
+            //put the spell images here
+
+            //put the spell cooldowns here
 
             //text
             this.ctx.fillStyle = "#fff";
@@ -173,8 +206,46 @@ class Draw {
         }
     }
 
+    weaponIndicator() {
+        this.ctx.globalAlpha = 0.6;
+        //background
+        this.ctx.fillStyle="#444444";
+        this.ctx.fillRect(840, 720, 150, 70);
+
+
+        //weapon image
+        this.ctx.fillStyle = "#fff";
+        this.ctx.font = "30px Arial";
+        //replace with an image eventually !!!!!!!!!!!!!
+        this.ctx.fillText(this.player.weapon.name, 910, 754);
+
+        //weapon ammo indicator
+        //text
+        this.ctx.font = "18px Arial";
+        this.ctx.fillText(this.player.weapon.currAmmo + "/" + this.player.weapon.maxAmmo, 848, 754);
+
+        //bullets
+        var startX = 850;
+        var startY = 760;
+        for (var i = 0; i < this.player.weapon.maxAmmo; i++) {
+            if (i <= this.player.weapon.currAmmo)
+                this.ctx.fillStyle = "#fff";
+            else
+                this.ctx.fillStyle = "#222222";
+            this.ctx.fillRect(startX, startY, 3, 7);
+            startX += 5;
+            if (startX == 980) {
+                startX = 850;
+                startY += 9;
+            }
+        }
+
+        this.ctx.globalAlpha = 1;
+    }
+
     UI() {
-        this.spells();
+        this.spellbar();
+        this.weaponIndicator();
         this.sidebar();
         this.chat();
     }
@@ -239,7 +310,7 @@ class Draw {
           var obj = getObject(object.object);
           //check when to draw the player
           if (this.game.player.position[1] + 15 > lastPosition && this.game.player.position[1] + 15 <= object.y + obj.height && lastPosition != null) {
-            this.player();
+            this.playerDraw();
             lastPosition = null;
           }
           else if (lastPosition != null)
@@ -262,14 +333,11 @@ class Draw {
         }
         //if we have gone through all of the objects and still not drawn the player
         if (lastPosition != null) {
-          this.player();
+          this.playerDraw();
         }
     }
 
-    player() {
-        //this.ctx.fillStyle = "#ffff66";
-        //this.ctx.fillRect(485, 366, 30, 60);
-        //keep the character 30 x 60 and put him in the position above!!!!
+    playerDraw() {
         var playerSprite = spriter.getSprite("character");
         this.ctx.drawImage(playerSprite.image,playerSprite.x,playerSprite.y, playerSprite.width, playerSprite.height, 480, 364, 40, 60);
 
@@ -301,8 +369,13 @@ class Draw {
 
 class Player {
     constructor(map) {
-        this.position = [60, 60];
         this.map = map;
+
+        //player info
+        this.position = [60, 60];
+        this.weapon = new Weapon();
+        this.cHealth = 100;
+        this.mHealth = 100;
     }
 
     move(keypress) {
