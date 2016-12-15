@@ -1,5 +1,7 @@
 var debug = false;
 
+var bullets = [];
+
 function getObject(obj) {
   switch (obj) {
     case "tree1":
@@ -112,7 +114,7 @@ class Sulran {
     checkMouseCommand() {
         if (this.mouse.down[0] > -1 && this.mouse.down[1] > -1) {
             if (this.mouse.down[0] < 1000 && this.mouse.down[1] < 800) {
-                console.log("game screen");
+                this.gameScreenClick();
             } else if (this.mouse.down[0] >= 1000 && this.mouse.down[1] < 800) {
                 console.log("side bar");
             } else if (this.mouse.down[1] >= 800) {
@@ -120,6 +122,19 @@ class Sulran {
             }
             this.mouse.down = [-1, -1];
         }
+    }
+
+    gameScreenClick() {
+        //the two seemingly random integers here are actually where the player x and y are drawn
+        var bulletTarget = {
+            "x": this.player.position[0] + (this.mouse.down[0] - 501),
+            "y": this.player.position[1] + (this.mouse.down[1] - 411),
+            "time": new Date().getTime()
+        }
+        bulletTarget.angle = (Math.atan2(this.player.position[1] - bulletTarget.y, this.player.position[0] - bulletTarget.x) * 180 / Math.PI) + 180;
+        console.log(bulletTarget);
+        bullets.push(bulletTarget);
+        //this.player.weapon.currAmmo--;
     }
 
     engine() {
@@ -145,6 +160,7 @@ class Weapon {
         this.reloadSpeed = 200;
         this.currAmmo = 12;
         this.maxAmmo = 36;
+        this.bulletVisibleDuration = 10;
     }
 }
 
@@ -228,7 +244,7 @@ class Draw {
         var startX = 850;
         var startY = 760;
         for (var i = 0; i < this.player.weapon.maxAmmo; i++) {
-            if (i <= this.player.weapon.currAmmo)
+            if (i < this.player.weapon.currAmmo)
                 this.ctx.fillStyle = "#fff";
             else
                 this.ctx.fillStyle = "#222222";
@@ -317,10 +333,7 @@ class Draw {
             lastPosition = object.y + obj.height;
 
           //now draw the actual object
-          var objPos = {
-            "x": 500 + (object.x - this.visibleMap.pX),
-            "y": 410 + (object.y - this.visibleMap.pY)
-          }
+          var objPos = this.getRelativePos({"x": object.x, "y": object.y});
 
           this.ctx.drawImage(things.image,obj.startX,obj.startY,obj.width,obj.height,objPos.x,objPos.y,obj.width,obj.height);
 
@@ -334,6 +347,13 @@ class Draw {
         //if we have gone through all of the objects and still not drawn the player
         if (lastPosition != null) {
           this.playerDraw();
+        }
+    }
+
+    getRelativePos(objPos) {
+        return {
+            "x": 500 + (objPos.x - this.visibleMap.pX),
+            "y": 410 + (objPos.y - this.visibleMap.pY)
         }
     }
 
@@ -356,9 +376,21 @@ class Draw {
       this.ctx.fillRect(499, 0, 2, 800);
     }
 
+    bullets() {
+        this.ctx.fillStyle="#33ffbb";
+        for (var i = 0; i < bullets.length; i++) {
+            var bulletPos = this.getRelativePos(bullets[i]);
+            this.ctx.fillRect(bulletPos.x - 2, bulletPos.y - 2, 4, 4);
+        }
+    }
+
     draw() {
         this.clearScreen();
         this.visibleLand();
+
+
+        this.bullets();
+
         this.UI();
 
         if (debug)
@@ -400,6 +432,10 @@ class Player {
 
       //                                                 speed    \/
       this.position = this.map.checkMoveTiles(this.position, movement, 3);
+    }
+
+    fire(bulletPos) {
+
     }
 }
 
