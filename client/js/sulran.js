@@ -132,37 +132,38 @@ class Sulran {
             "time": new Date().getTime()
         }
 
-        var leftObject = null,
-            rightObject = null;
-
-        //if the shot was right of the player
-        if (clickTarget.x - this.player.position[0] > 0) {
-            leftObject = {"x": this.player.position[0], "y": this.player.position[1]};
-            rightObject = clickTarget;
-        } else if (clickTarget.x - this.player.position[0] < 0) {
-            leftObject = clickTarget;
-            rightObject = {"x": this.player.position[0], "y": this.player.position[1]};
-        }
-
         // bresenhams line algorithm
         var bulletLine = {
-            "distx": rightObject.x - leftObject.x,
-            "disty": rightObject.y - leftObject.y,
-            "error": -1,
-            "y": leftObject.y
+            "distx": clickTarget.x - this.player.position[0],
+            "disty": clickTarget.y - this.player.position[1],
+            "errorx": -1,
+            "errory": -1,
+            "x": this.player.position[0],
+            "y": this.player.position[1]
         }
-        bulletLine.abs = Math.abs(bulletLine.disty / bulletLine.distx);
+        bulletLine.absy = Math.abs(bulletLine.disty / bulletLine.distx);
+        bulletLine.absx = Math.abs(bulletLine.distx / bulletLine.disty);
 
         console.log(bulletLine);
-        for (var i = leftObject.x; i < rightObject.x; i++) {
-            bullets.push({"x": i, "y": bulletLine.y});
-            bulletLine.error += bulletLine.abs;
-            if (bulletLine.error > 0) {
+        for (var i = 0; i <= this.player.weapon.distance; i++) {
+            bullets.push({"x": bulletLine.x, "y": bulletLine.y});
+            bulletLine.errory += bulletLine.absy;
+            bulletLine.errorx += bulletLine.absx;
+            //check if y needs to move
+            if (bulletLine.errory > 0) {
                 if (bulletLine.disty > 0)
                     bulletLine.y += 1;
                 else if (bulletLine.disty < 0)
                     bulletLine.y -= 1;
-                bulletLine.error -= 1;
+                bulletLine.errory -= 1;
+            }
+            //check if x needs to move
+            if (bulletLine.errorx > 0) {
+                if (bulletLine.distx > 0)
+                    bulletLine.x += 1;
+                else if (bulletLine.distx < 0)
+                    bulletLine.x -= 1;
+                bulletLine.errorx -= 1;
             }
         }
 
