@@ -125,15 +125,48 @@ class Sulran {
     }
 
     gameScreenClick() {
-        //the two seemingly random integers here are actually where the player x and y are drawn
-        var bulletTarget = {
-            "x": this.player.position[0] + (this.mouse.down[0] - 501),
-            "y": this.player.position[1] + (this.mouse.down[1] - 411),
+        //the two seemingly random integers here are actually to cancel out where the player x and y are drawn
+        var clickTarget = {
+            "x": this.player.position[0] + (this.mouse.down[0] - 502),
+            "y": this.player.position[1] + (this.mouse.down[1] - 414),
             "time": new Date().getTime()
         }
-        bulletTarget.angle = (Math.atan2(this.player.position[1] - bulletTarget.y, this.player.position[0] - bulletTarget.x) * 180 / Math.PI) + 180;
-        console.log(bulletTarget);
-        bullets.push(bulletTarget);
+
+        var leftObject = null,
+            rightObject = null;
+
+        //if the shot was right of the player
+        if (clickTarget.x - this.player.position[0] > 0) {
+            leftObject = {"x": this.player.position[0], "y": this.player.position[1]};
+            rightObject = clickTarget;
+        } else if (clickTarget.x - this.player.position[0] < 0) {
+            leftObject = clickTarget;
+            rightObject = {"x": this.player.position[0], "y": this.player.position[1]};
+        }
+
+        // bresenhams line algorithm
+        var bulletLine = {
+            "distx": rightObject.x - leftObject.x,
+            "disty": rightObject.y - leftObject.y,
+            "error": -1,
+            "y": leftObject.y
+        }
+        bulletLine.abs = Math.abs(bulletLine.disty / bulletLine.distx);
+
+        console.log(bulletLine);
+        for (var i = leftObject.x; i < rightObject.x; i++) {
+            bullets.push({"x": i, "y": bulletLine.y});
+            bulletLine.error += bulletLine.abs;
+            if (bulletLine.error > 0) {
+                if (bulletLine.disty > 0)
+                    bulletLine.y += 1;
+                else if (bulletLine.disty < 0)
+                    bulletLine.y -= 1;
+                bulletLine.error -= 1;
+            }
+        }
+
+        //bullets.push(bulletTarget);
         //this.player.weapon.currAmmo--;
     }
 
@@ -380,7 +413,7 @@ class Draw {
         this.ctx.fillStyle="#33ffbb";
         for (var i = 0; i < bullets.length; i++) {
             var bulletPos = this.getRelativePos(bullets[i]);
-            this.ctx.fillRect(bulletPos.x - 2, bulletPos.y - 2, 4, 4);
+            this.ctx.fillRect(bulletPos.x, bulletPos.y, 1, 1);
         }
     }
 
