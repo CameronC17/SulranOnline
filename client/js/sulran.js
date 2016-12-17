@@ -136,18 +136,18 @@ class Sulran {
         // bresenhams line algorithm
         var bulletLine = {
             "distx": clickTarget.x - this.player.position[0],
-            "disty": clickTarget.y - this.player.position[1],
+            "disty": clickTarget.y - this.player.position[1] - 10,
             "errorx": -1,
             "errory": -1,
             "x": this.player.position[0],
-            "y": this.player.position[1]
+            "y": this.player.position[1] - 10
         }
         bulletLine.absy = Math.abs(bulletLine.disty / bulletLine.distx);
         bulletLine.absx = Math.abs(bulletLine.distx / bulletLine.disty);
 
         for (var i = 0; i <= this.player.weapon.distance; i++) {
             if (!this.map.checkBulletHit({"x": bulletLine.x, "y": bulletLine.y})) {
-                this.bullets.push({"x": bulletLine.x, "y": bulletLine.y});
+                this.bullets.push({"x": bulletLine.x, "y": bulletLine.y, "time": new Date().getTime()});
             } else {
                 console.log("breaking");
                 break;
@@ -417,10 +417,13 @@ class Draw {
     }
 
     bullets() {
-        this.ctx.fillStyle="#33ffbb";
+        this.ctx.fillStyle="#a8b71d";
+        var now = new Date().getTime();
         for (var i = 0; i < this.game.bullets.length; i++) {
             var bulletPos = this.getRelativePos(this.game.bullets[i]);
-            this.ctx.fillRect(bulletPos.x, bulletPos.y, 1, 1);
+            this.ctx.fillRect(bulletPos.x - 1, bulletPos.y - 1, 3, 3);
+            if (now > this.game.bullets[i].time + 100)
+                this.game.bullets.splice(i, 1);
         }
     }
 
