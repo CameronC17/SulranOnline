@@ -1,7 +1,5 @@
 var debug = false;
 
-var bullets = [];
-
 function getObject(obj) {
   switch (obj) {
     case "tree1":
@@ -34,6 +32,9 @@ class Sulran {
 
         this.c = document.getElementById(canvas);
         this.ctx = this.c.getContext("2d");
+
+        //engine variables
+        this.bullets = [];
 
         //variables
         this.mouse = {
@@ -144,9 +145,14 @@ class Sulran {
         bulletLine.absy = Math.abs(bulletLine.disty / bulletLine.distx);
         bulletLine.absx = Math.abs(bulletLine.distx / bulletLine.disty);
 
-        console.log(bulletLine);
         for (var i = 0; i <= this.player.weapon.distance; i++) {
-            bullets.push({"x": bulletLine.x, "y": bulletLine.y});
+            if (!this.map.checkBulletHit({"x": bulletLine.x, "y": bulletLine.y})) {
+                this.bullets.push({"x": bulletLine.x, "y": bulletLine.y});
+            } else {
+                console.log("breaking");
+                break;
+            }
+
             bulletLine.errory += bulletLine.absy;
             bulletLine.errorx += bulletLine.absx;
             //check if y needs to move
@@ -412,8 +418,8 @@ class Draw {
 
     bullets() {
         this.ctx.fillStyle="#33ffbb";
-        for (var i = 0; i < bullets.length; i++) {
-            var bulletPos = this.getRelativePos(bullets[i]);
+        for (var i = 0; i < this.game.bullets.length; i++) {
+            var bulletPos = this.getRelativePos(this.game.bullets[i]);
             this.ctx.fillRect(bulletPos.x, bulletPos.y, 1, 1);
         }
     }
@@ -476,6 +482,18 @@ class Player {
 class Map {
     constructor() {
         this.map = map;
+    }
+
+    checkBulletHit(bullPos) {
+        for (var y = 0; y < this.map.sulran.ground.length; y++) {
+            for (var x = 0; x < this.map.sulran.ground[y].length; x++) {
+                if (this.map.sulran.ground[y][x] == "w1") {
+                    if (bullPos.x >= x*40 && bullPos.x <= (x*40) + 40 && bullPos.y >= y*40 && bullPos.y <= (y*40) + 40)
+                        return true;
+                }
+            }
+        }
+        return false;
     }
 
     checkMoveTiles(currPos, dir, speed) {
