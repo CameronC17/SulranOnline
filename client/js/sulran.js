@@ -485,6 +485,7 @@ class Map {
     }
 
     checkBulletHit(bullPos) {
+        //check for bullet hit on tiles
         for (var y = 0; y < this.map.sulran.ground.length; y++) {
             for (var x = 0; x < this.map.sulran.ground[y].length; x++) {
                 if (this.map.sulran.ground[y][x] == "w1") {
@@ -493,6 +494,16 @@ class Map {
                 }
             }
         }
+
+        //check bullet objects
+        for (let object of this.map.sulran.objects) {
+            var objType = getObject(object.object);
+            if (objType.solid) {
+                if (bullPos.x >= object.x + objType.solidStartX && bullPos.x <= object.x + objType.solidStartX + objType.solidWidth && bullPos.y >= object.y + objType.solidStartY && bullPos.y <= object.y + objType.solidStartY + objType.solidHeight)
+                    return true;
+            }
+        }
+
         return false;
     }
 
