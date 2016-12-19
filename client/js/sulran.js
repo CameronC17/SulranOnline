@@ -133,48 +133,46 @@ class Sulran {
             "time": new Date().getTime()
         }
 
-        // bresenhams line algorithm
-        var bulletLine = {
-            "distx": clickTarget.x - this.player.position[0],
-            "disty": clickTarget.y - this.player.position[1] - 10,
-            "errorx": -1,
-            "errory": -1,
-            "x": this.player.position[0],
-            "y": this.player.position[1] - 10
+        if (this.player.canFire()) {
+            // bresenhams line algorithm
+            var bulletLine = {
+                "distx": clickTarget.x - this.player.position[0],
+                "disty": clickTarget.y - this.player.position[1] - 10,
+                "errorx": -1,
+                "errory": -1,
+                "x": this.player.position[0],
+                "y": this.player.position[1] - 10
+            }
+            bulletLine.absy = Math.abs(bulletLine.disty / bulletLine.distx);
+            bulletLine.absx = Math.abs(bulletLine.distx / bulletLine.disty);
+
+            for (var i = 0; i <= this.player.weapon.distance; i++) {
+                if (!this.map.checkBulletHit({"x": bulletLine.x, "y": bulletLine.y})) {
+                    this.bullets.push({"x": bulletLine.x, "y": bulletLine.y, "time": new Date().getTime()});
+                } else {
+                    break;
+                }
+
+                bulletLine.errory += bulletLine.absy;
+                bulletLine.errorx += bulletLine.absx;
+                //check if y needs to move
+                if (bulletLine.errory > 0) {
+                    if (bulletLine.disty > 0)
+                        bulletLine.y += 1;
+                    else if (bulletLine.disty < 0)
+                        bulletLine.y -= 1;
+                    bulletLine.errory -= 1;
+                }
+                //check if x needs to move
+                if (bulletLine.errorx > 0) {
+                    if (bulletLine.distx > 0)
+                        bulletLine.x += 1;
+                    else if (bulletLine.distx < 0)
+                        bulletLine.x -= 1;
+                    bulletLine.errorx -= 1;
+                }
+            }
         }
-        bulletLine.absy = Math.abs(bulletLine.disty / bulletLine.distx);
-        bulletLine.absx = Math.abs(bulletLine.distx / bulletLine.disty);
-
-        for (var i = 0; i <= this.player.weapon.distance; i++) {
-            if (!this.map.checkBulletHit({"x": bulletLine.x, "y": bulletLine.y})) {
-                this.bullets.push({"x": bulletLine.x, "y": bulletLine.y, "time": new Date().getTime()});
-            } else {
-                console.log("breaking");
-                break;
-            }
-
-            bulletLine.errory += bulletLine.absy;
-            bulletLine.errorx += bulletLine.absx;
-            //check if y needs to move
-            if (bulletLine.errory > 0) {
-                if (bulletLine.disty > 0)
-                    bulletLine.y += 1;
-                else if (bulletLine.disty < 0)
-                    bulletLine.y -= 1;
-                bulletLine.errory -= 1;
-            }
-            //check if x needs to move
-            if (bulletLine.errorx > 0) {
-                if (bulletLine.distx > 0)
-                    bulletLine.x += 1;
-                else if (bulletLine.distx < 0)
-                    bulletLine.x -= 1;
-                bulletLine.errorx -= 1;
-            }
-        }
-
-        //bullets.push(bulletTarget);
-        //this.player.weapon.currAmmo--;
     }
 
     engine() {
@@ -187,20 +185,6 @@ class Sulran {
 
       //draw
       this.graphics.draw();
-    }
-}
-
-class Weapon {
-    constructor(type){
-        this.name = "Pistol";
-        this.image = "google.com";
-        this.damage = 5;
-        this.distance = 200;
-        this.fireSpeed = 50;
-        this.reloadSpeed = 200;
-        this.currAmmo = 12;
-        this.maxAmmo = 36;
-        this.bulletVisibleDuration = 10;
     }
 }
 
@@ -442,6 +426,21 @@ class Draw {
 
 }
 
+class Weapon {
+    constructor(type){
+        this.name = "Pistol";
+        this.image = "google.com";
+        this.damage = 5;
+        this.distance = 200;
+        this.fireSpeed = 300;
+        this.lastFire = new Date().getTime() - this.fireSpeed;
+        this.reloadSpeed = 200;
+        this.currAmmo = 12;
+        this.maxAmmo = 36;
+        this.bulletVisibleDuration = 10;
+    }
+}
+
 class Player {
     constructor(map) {
         this.map = map;
@@ -477,8 +476,20 @@ class Player {
       this.position = this.map.checkMoveTiles(this.position, movement, 3);
     }
 
-    fire(bulletPos) {
+    canFire() {
+        if (this.weapon) {
+            var now = new Date().getTime();
+            if (this.weapon.currAmmo > 0 && now >= this.weapon.lastFire + this.weapon.fireSpeed) {
+                this.fire();
+                return true;
+            }
+        }
+        return false;
+    }
 
+    fire() {
+        this.weapon.currAmmo--;
+        this.weapon.lastFire = new Date().getTime();
     }
 }
 
