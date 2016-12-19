@@ -68,18 +68,17 @@ class Sulran {
             UP: 87,
             RIGHT: 68,
             DOWN: 83,
+            RELOAD: 82,
             checkMovement: function() {
               if (this._pressed[this.LEFT] && !this._pressed[this.RIGHT])
                 spriter.changeAnimation("character", "moveLeft");
               else if (this._pressed[this.RIGHT] && !this._pressed[this.LEFT])
-              spriter.changeAnimation("character", "moveRight");
+                spriter.changeAnimation("character", "moveRight");
 
               if (this._pressed[this.UP] && !this._pressed[this.DOWN])
                 spriter.changeAnimation("character", "moveUp");
               else if (this._pressed[this.DOWN] && !this._pressed[this.UP])
-              spriter.changeAnimation("character", "moveDown");
-
-
+                spriter.changeAnimation("character", "moveDown");
             },
             isEmpty: function() {
               return !(this._pressed[this.LEFT] || this._pressed[this.UP] || this._pressed[this.RIGHT] || this._pressed[this.DOWN]);
@@ -129,7 +128,7 @@ class Sulran {
         //the two seemingly random integers here are actually to cancel out where the player x and y are drawn
         var clickTarget = {
             "x": this.player.position[0] + (this.mouse.down[0] - 502),
-            "y": this.player.position[1] + (this.mouse.down[1] - 414),
+            "y": this.player.position[1] + (this.mouse.down[1] - 394),
             "time": new Date().getTime()
         }
 
@@ -178,6 +177,7 @@ class Sulran {
     engine() {
       //stuff before the draw
       this.player.move(this.Key);
+      this.player.input(this.Key);
       this.checkMouseCommand();
 
       //get all necessary data
@@ -260,23 +260,25 @@ class Draw {
         this.ctx.fillText(this.player.weapon.name, 910, 754);
 
         //weapon ammo indicator
-        //text
+
         this.ctx.font = "18px Arial";
-        this.ctx.fillText(this.player.weapon.currAmmo + "/" + this.player.weapon.maxAmmo, 848, 754);
+        this.ctx.fillText(("0" + this.player.weapon.currAmmo).slice(-2) + "/" + this.player.weapon.magSize, 848, 754);
+        this.ctx.font = "10px Arial";
+        this.ctx.fillText(this.player.weapon.reserveAmmo, 968, 782);
 
         //bullets
         var startX = 850;
         var startY = 760;
-        for (var i = 0; i < this.player.weapon.maxAmmo; i++) {
+        for (var i = 0; i < this.player.weapon.magSize; i++) {
             if (i < this.player.weapon.currAmmo)
                 this.ctx.fillStyle = "#fff";
             else
                 this.ctx.fillStyle = "#222222";
-            this.ctx.fillRect(startX, startY, 3, 7);
-            startX += 5;
-            if (startX == 980) {
+            this.ctx.fillRect(startX, startY, 5, 10);
+            startX += 7;
+            if (startX >= 980) {
                 startX = 850;
-                startY += 9;
+                startY += 12;
             }
         }
 
@@ -431,13 +433,39 @@ class Weapon {
         this.name = "Pistol";
         this.image = "google.com";
         this.damage = 5;
-        this.distance = 200;
+        this.distance = 400;
+
         this.fireSpeed = 300;
         this.lastFire = new Date().getTime() - this.fireSpeed;
-        this.reloadSpeed = 200;
+
+        this.reloading = false;
+        this.reloadSpeed = 600;
+
         this.currAmmo = 12;
+        this.magSize = 12;
+        this.reserveAmmo = 100;
         this.maxAmmo = 36;
+
         this.bulletVisibleDuration = 10;
+    }
+
+    reload() {
+        if (!this.reloading && this.reserveAmmo > 0) {
+            this.reloading = true;
+            var obj = this;
+            setTimeout(function() { obj.completeReload() }, this.reloadSpeed);
+        }
+    }
+
+    completeReload() {
+        if (this.reserveAmmo < this.magSize) {
+            this.currAmmo = this.reserveAmmo;
+            this.reserveAmmo = 0;
+        } else {
+            this.reserveAmmo -= (this.magSize - this.currAmmo);
+            this.currAmmo = this.magSize;
+        }
+        this.reloading = false;
     }
 }
 
@@ -474,6 +502,12 @@ class Player {
 
       //                                                 speed    \/
       this.position = this.map.checkMoveTiles(this.position, movement, 3);
+    }
+
+    input(keypress) {
+        //player has pressed reload
+        if (keypress.isDown(keypress.RELOAD))
+            this.weapon.reload();
     }
 
     canFire() {
