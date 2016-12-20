@@ -285,9 +285,21 @@ class Draw {
         this.ctx.globalAlpha = 1;
     }
 
+    reloadIndicator() {
+      if (this.player.weapon.lastReload) {
+        this.ctx.fillStyle="#454545";
+        this.ctx.fillRect(483, 430, 35, 5);
+        this.ctx.fillStyle="#888888";
+        var now = new Date().getTime();
+        this.ctx.fillRect(483, 430, ((now - this.player.weapon.lastReload) / this.player.weapon.reloadSpeed)*35, 5);
+      }
+    }
+
     UI() {
         this.spellbar();
         this.weaponIndicator();
+        this.reloadIndicator();
+
         this.sidebar();
         this.chat();
     }
@@ -417,7 +429,6 @@ class Draw {
         this.clearScreen();
         this.visibleLand();
 
-
         this.bullets();
 
         this.UI();
@@ -440,10 +451,11 @@ class Weapon {
 
         this.reloading = false;
         this.reloadSpeed = 600;
+        this.lastReload = null;
 
         this.currAmmo = 12;
         this.magSize = 12;
-        this.reserveAmmo = 100;
+        this.reserveAmmo = 16;
         this.maxAmmo = 36;
 
         this.bulletVisibleDuration = 10;
@@ -452,19 +464,23 @@ class Weapon {
     reload() {
         if (!this.reloading && this.reserveAmmo > 0) {
             this.reloading = true;
+            this.lastReload = new Date().getTime();
+
             var obj = this;
             setTimeout(function() { obj.completeReload() }, this.reloadSpeed);
         }
     }
 
     completeReload() {
-        if (this.reserveAmmo < this.magSize) {
-            this.currAmmo = this.reserveAmmo;
-            this.reserveAmmo = 0;
+        if (this.reserveAmmo > this.magSize - this.currAmmo) {
+          var bulletsMissing = this.magSize - this.currAmmo;
+          this.currAmmo += bulletsMissing;
+          this.reserveAmmo -= bulletsMissing;
         } else {
-            this.reserveAmmo -= (this.magSize - this.currAmmo);
-            this.currAmmo = this.magSize;
+          this.currAmmo += this.reserveAmmo;
+          this.reserveAmmo = 0;
         }
+        this.lastReload = null;
         this.reloading = false;
     }
 }
